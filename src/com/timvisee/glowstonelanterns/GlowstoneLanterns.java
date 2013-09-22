@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.io.*;
 
-
 import org.anjocaido.groupmanager.GroupManager;
-import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 import org.bukkit.World;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -18,25 +16,30 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import ru.tehkode.permissions.PermissionManager;
-import ru.tehkode.permissions.PermissionUser;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
 import com.timvisee.glowstonelanterns.GlowstoneLanternsBlockListener;
 import com.timvisee.glowstonelanterns.Lantern;
+import com.timvisee.glowstonelanterns.manager.GLPermissionsManager;
 
 public class GlowstoneLanterns extends JavaPlugin {
+	
+	// Glowstone Lanterns static instance
+	public static GlowstoneLanterns instance;
+	
+	// Logger
 	public static final Logger log = Logger.getLogger("Minecraft");
 	
 	// Listeners
 	private final GlowstoneLanternsBlockListener blockListener = new GlowstoneLanternsBlockListener(this);
+
+	// Managers
+	private GLPermissionsManager pm;
 	
 	// User data
 	public final HashMap<Player, ArrayList<Block>> GLUsers = new HashMap<Player, ArrayList<Block>>();
@@ -65,18 +68,13 @@ public class GlowstoneLanterns extends JavaPlugin {
 	private File lanternsFile = new File("plugins/Glowstone Lanterns/Glowstone Lanterns.txt");
 	public File prebuiltLanternsFolder = new File("Glowstone Lanterns/Prebuilt Lanterns");
 	
-	/*
-	 * 0 = none
-	 * 1 = PermissionsEx
-	 * 2 = PermissionsBukkit
-	 * 3 = bPermissions
-	 * 4 = Essentials Group Manager
-	 * 5 = Permissions
+	/**
+	 * Constructor
 	 */
-	private int permissionsSystem = 0;
-	private PermissionManager pexPermissions;
-	private PermissionHandler defaultPermsissions;
-	private GroupManager groupManagerPermissions;
+	public GlowstoneLanterns() {
+		// Define the Glowstone Lanterns static instance variable
+		instance = this;
+	}
 
 	public void onEnable() {
 		// Check if all the config file exists
@@ -89,7 +87,10 @@ public class GlowstoneLanterns extends JavaPlugin {
 		// Setup costum files and folders
 		lanternsFile = new File(getDataFolder() + "/" + getConfig().getString("GlowstoneLanternsFile", "Glowstone Lanterns.txt"));
 		prebuiltLanternsFolder = new File(getDataFolder() + "/" + getConfig().getString("PrebuiltLanternsFolder", "Prebuilt Lanterns"));
-		
+
+		// Set up the permissions manager
+	    setUpPermissionsManager();
+	    
 		// Load lanterns
 		loadLanterns();
 		
@@ -99,9 +100,6 @@ public class GlowstoneLanterns extends JavaPlugin {
 		
 		// Create new timer to check world times and change lanterns if needed
 		getServer().getScheduler().scheduleSyncRepeatingTask( this, new Runnable() { public void run() { timer(); } }, 20, 20); // Run a timer that run's the timer() function every 1 seccond
-		
-		// Setup permissions
-		setupPermissions();
 		
 		// Lantern delay settings
 		this.lanternDelayEnabled = getConfig().getBoolean("changeDelayEnabled", true);
@@ -125,6 +123,49 @@ public class GlowstoneLanterns extends JavaPlugin {
 		PluginDescriptionFile pdfFile = getDescription();
 		log.info("[Glowstone Lanterns] Glowstone Lanterns v" + pdfFile.getVersion() + " Disabled");
 	}
+	
+	/**
+	 * Setup the permissions manager
+	 */
+	public void setUpPermissionsManager() {
+		// Setup the permissions manager
+		this.pm = new GLPermissionsManager(this.getServer(), this, this.getLogger());
+		this.pm.setup();
+	}
+	
+	/**
+	 * Get the permissions manager
+	 * @return permissions manager
+	 */
+	public GLPermissionsManager getPermissionsManager() {
+		return this.pm;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	public void checkConigFilesExist() throws Exception {
 		if(!getDataFolder().exists()) {
@@ -229,113 +270,6 @@ public class GlowstoneLanterns extends JavaPlugin {
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
-	}
-	
-	private void setupPermissions() {
-		// Reset permissions
-		permissionsSystem = 0;
-		
-		// Check PermissionsEx system
-		Plugin testPex = this.getServer().getPluginManager().getPlugin("PermissionsEx");
-		if(testPex != null) {
-			pexPermissions = PermissionsEx.getPermissionManager();
-			if(pexPermissions != null) {
-				permissionsSystem = 1;
-				
-				System.out.println("[Glowstone Lanterns] Hooked into PermissionsEx!");
-				return;
-			}
-		}
-		
-		// Check PermissionsBukkit system
-		Plugin testBukkitPerms = this.getServer().getPluginManager().getPlugin("PermissionsBukkit");
-		if(testBukkitPerms != null) {
-			permissionsSystem = 2;
-			System.out.println("[Glowstone Lanterns] Hooked into PermissionsBukkit!");
-			return;
-		}
-		
-		// Check bPermissions system
-		/*
-		 * Not available yet!
-		 */
-		
-		// Check Essentials Group Manager system
-		final PluginManager pluginManager = getServer().getPluginManager();
-		final Plugin GMplugin = pluginManager.getPlugin("GroupManager");
-		if (GMplugin != null && GMplugin.isEnabled()) {
-			permissionsSystem = 4;
-			groupManagerPermissions = (GroupManager)GMplugin;
-            System.out.println("[Glowstone Lanterns] Hooked into Essentials Group Manager!");
-            return;
-		}
-		
-		// Check Permissions system
-	    Plugin testPerms = this.getServer().getPluginManager().getPlugin("Permissions");
-	    if (this.defaultPermsissions == null) {
-	        if (testPerms != null) {
-	        	permissionsSystem = 5;
-	            this.defaultPermsissions = ((Permissions) testPerms).getHandler();
-	            System.out.println("[Glowstone Lanterns] Hooked into Permissions!");
-	            return;
-	        }
-	    }
-	    
-	    // None of the permissions systems worked >:c.
-	    permissionsSystem = 0;
-	    System.out.println("[Glowstone Lanterns] No Permissions system found! Permissions disabled!");
-	}
-	
-	public boolean usePermissions() {
-		if(permissionsSystem == 0) {
-			return false;
-		}
-		return true;
-	}
-	
-	public int getPermissionsSystem() {
-		return permissionsSystem;
-	}
-	
-	public boolean hasPermission(Player player, String permissionNode) {
-		return hasPermission(player, permissionNode, player.isOp());
-	}
-	
-	public boolean hasPermission(Player player, String permissionNode, boolean def) {
-		if(usePermissions() == false) {
-			return def;
-		}
-		
-		// Using PermissionsEx
-		if(getPermissionsSystem() == 1) {
-			PermissionUser user  = PermissionsEx.getUser(player);
-			return user.has(permissionNode);
-		}
-		
-		// Using PermissionsBukkit
-		if(getPermissionsSystem() == 2) {
-			return player.hasPermission(permissionNode);
-		}
-		
-		// Using bPemissions
-		// Available soon!
-		
-		// Using Essentials Group Manager
-		if(getPermissionsSystem() == 4) {
-			final AnjoPermissionsHandler handler = groupManagerPermissions.getWorldsHolder().getWorldPermissions(player);
-			if (handler == null)
-			{
-				return false;
-			}
-			return handler.has(player, permissionNode);
-		}
-		
-		// Using Permissions
-		if(getPermissionsSystem() == 5) {
-			return this.defaultPermsissions.has(player, permissionNode);
-		}
-
-		return false;
 	}
 	
 	public boolean saveLanterns() {
@@ -856,49 +790,57 @@ public class GlowstoneLanterns extends JavaPlugin {
 		return false;
 	}
 	
-	/*
-	 * Permissions getters and setters
+	/**
+	 * Check whether a player can use Glowstone Lanterns
+	 * @param p Player 
+	 * @return True if the player has permission
 	 */
-	public boolean canUseGL(Player player) {
-	    if (usePermissions()) {
-	        return this.hasPermission(player, "glowstonelanterns.gl", player.isOp());
-	        
-	    }
-	    return player.isOp();
+	public boolean canUseGL(Player p) {
+	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.gl", p.isOp());
 	}
 	
-	public boolean canDestroyLanterns(Player player) {
-		if (usePermissions()) {
-	        return this.hasPermission(player, "glowstonelanterns.destroyLanterns", player.isOp());
-	    }
-	    return player.isOp();
+	/**
+	 * Check whether a player can destroy Glowstone Lanterns
+	 * @param p Player
+	 * @return True if the player has permission
+	 */
+	public boolean canDestroyLanterns(Player p) {
+	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.destroyLantern", p.isOp());
 	}
 	
-	public boolean canUseGLInfo(Player player) {
-	    if (usePermissions()) {
-	        return this.hasPermission(player, "glowstonelanterns.info", player.isOp());
-	    }
-	    return player.isOp();
+	/**
+	 * Check whether a player can use the info command
+	 * @param p Player
+	 * @return True if the player has permission
+	 */
+	public boolean canUseGLInfo(Player p) {
+	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.info", p.isOp());
 	}
 	
-	public boolean canUseGLList(Player player) {
-	    if (usePermissions()) {
-	        return this.hasPermission(player, "glowstonelanterns.list", player.isOp());
-	    }
-	    return player.isOp();
+	/**
+	 * Check whether a player can use the list command
+	 * @param p Player
+	 * @return True if the player has permission
+	 */
+	public boolean canUseGLList(Player p) {
+	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.list", p.isOp());
 	}
 
-	public boolean canUseGLSave(Player player) {
-	    if (usePermissions()) {
-	        return this.hasPermission(player, "glowstonelanterns.save", player.isOp());
-	    }
-	    return player.isOp();
+	/**
+	 * Check whether a player can use the save command
+	 * @param p Player
+	 * @return True if the player has permission
+	 */
+	public boolean canUseGLSave(Player p) {
+	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.save", p.isOp());
 	}
 
-	public boolean canUseGLReload(Player player) {
-	    if (usePermissions()) {
-	        return this.hasPermission(player, "glowstonelanterns.reload", player.isOp());
-	    }
-	    return player.isOp();
+	/**
+	 * Check whether a player can use the reload command
+	 * @param p Player
+	 * @return True if the player has permission
+	 */
+	public boolean canUseGLReload(Player p) {
+	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.reload", p.isOp());
 	}
 }

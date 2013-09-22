@@ -1,0 +1,59 @@
+# Config file
+
+# Files and Folders
+GlowstoneLanternsFile: 'lanterns.list'
+PrebuiltLanternsFolder: 'Prebuilt Lanterns'
+
+# Permissions settings
+permissions:
+    usePermissions: true
+    enableBypassPermissions: true
+    permissionsSystems:
+        PermissionsEx:
+            enabled: true
+        PermissionsBukkit:
+            enabled: true
+        bPermissions:
+            enabled: true
+        EssentialsGroupManager:
+            enabled: true
+        zPermissions:
+            enabled: true
+        Vault:
+            enabled: true
+        Permissions:
+            enabled: true
+
+# Day and Night times (times when day or night starts)
+DayStart: 23700
+NightStart: 12400
+
+# Default lantern settings
+lanternDayTypeID: 20
+lanternDayDataValue: 0
+lanternNightTypeID: 89
+lanternNightDataValue: 0
+lanternRainTypeID: 89
+lanternRainDataValue: 0
+
+# This list is the list of blocks which could be used to place/create a lantern,
+# that means if you have glowstone lanterns build mode enabled and you
+# place one of those blocks the block will turn into a lantern
+lanternBuildBlocks:
+    - 20
+    - 89
+    - 123
+    - 124
+
+# Optionally enable lantern change delay to prevent client lag spikes
+changeDelayEnabled: true
+changeDelayTime: 1 # Time in server ticks; 1 = 0.05 secconds & 20 = 1 seccond
+
+# If this is set to false there will no permissions system be used, the plugin will use its default player/op settings
+permissionsEnabled: true
+
+# When this is enabled it shows a message everytime it start raining, when its day or when its night in the console
+ShowTimeChangedMessagesInConsole: false
+
+# File version, do not change!
+version: '0.7'

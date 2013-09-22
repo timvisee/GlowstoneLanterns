@@ -37,6 +37,12 @@ public class GlowstoneLanterns extends JavaPlugin {
 	// Managers
 	private GLPermissionsManager pm;
 	
+	
+	
+	
+	
+	
+	
 	// User data
 	public final HashMap<Player, ArrayList<Block>> GLUsers = new HashMap<Player, ArrayList<Block>>();
 	public final HashMap<Player, String> GLUsersPrebuiltLanterns = new HashMap<Player, String>();
@@ -58,7 +64,7 @@ public class GlowstoneLanterns extends JavaPlugin {
 	 * 2 = night
 	 * 3 = rain
 	 */
-	public HashMap<World, Integer> lastDayState = new HashMap<World, Integer>();
+	public HashMap<World, LanternState> lastDayState = new HashMap<World, LanternState>();
 	
 	// Setup some default file and folder paths, these will change to the config ones in the onEnable function
 	private File lanternsFile = new File("plugins/Glowstone Lanterns/Glowstone Lanterns.txt");
@@ -437,29 +443,29 @@ public class GlowstoneLanterns extends JavaPlugin {
 			// Check if the current world is loaded
 			if(isWorldLoaded(world.getName())) {
 				// Get current day state of the world
-				int currentDayState = 0; // 0 = unknown
+				LanternState currentDayState = LanternState.UNKNOWN;
 				if(isRaining(world)) {
-					currentDayState = 3; // 3 = raining
+					currentDayState = LanternState.RAIN;
 				} else if(isDay(world)) {
-					currentDayState = 1; // 1 = day
+					currentDayState = LanternState.DAY;
 				} else {
-					currentDayState = 2; // 2 = night
+					currentDayState = LanternState.NIGHT;
 				}
 				
 				// World state not save yet, put unknown state in list
 				if(lastDayState.containsKey(world) == false) {
-					lastDayState.put(world, 0);
+					lastDayState.put(world, LanternState.UNKNOWN);
 				}
 				
 				// Check if last state was different
 				if(lastDayState.get(world) != currentDayState) {
 					// Last day state was different
 					// Show console message if needed
-					if(currentDayState == 1) {
+					if(currentDayState == LanternState.DAY) {
 						if(getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
 							System.out.println("[Glowstone Lanterns] Day in '" + world.getName() + "', set lanterns");
 						}
-					} else if(currentDayState == 2) {
+					} else if(currentDayState == LanternState.NIGHT) {
 						if(getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
 							System.out.println("[Glowstone Lanterns] Night in '" + world.getName() + "', set lanterns");
 						}
@@ -518,7 +524,7 @@ public class GlowstoneLanterns extends JavaPlugin {
 		
 		Lantern newLantern = new Lantern(world.getName(),
 				block.getX(), block.getY(), block.getZ(),
-				0,
+				LanternState.UNKNOWN,
 				lanternDayType, lanternDayData,
 				lanternNightType, lanternNightData,
 				lanternRainType, lanternRainData);

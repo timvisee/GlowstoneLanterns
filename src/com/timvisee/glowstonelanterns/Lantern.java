@@ -8,8 +8,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 public class Lantern {
-	// Variables
-	String world = "world";
+
+	String w = "world";
 	int x, y, z = 0;
 	
 	/**
@@ -19,14 +19,14 @@ public class Lantern {
 	 * lanternState = 2 = night
 	 * lanternState = 3 = rain
 	 */
-	int lanternState = 0;
+	private LanternState lanternState = LanternState.UNKNOWN;
 	
-	int lanternDayType = 0;
-	byte lanternDayData;
-	int lanternNightType = 0;
-	byte lanternNightData;
-	int lanternRainType = 0;
-	byte lanternRainData;
+	private int lanternDayType = 0;
+	private byte lanternDayData;
+	private int lanternNightType = 0;
+	private byte lanternNightData;
+	private int lanternRainType = 0;
+	private byte lanternRainData;
 	
 	
 	/**
@@ -45,7 +45,7 @@ public class Lantern {
 	 */
 	public Lantern(
 			String world, int x, int y, int z,
-			int lanternState, 
+			LanternState lanternState, 
 			int lanternDayType, byte lanternDayData,
 			int lanternNightType, byte lanternNightData,
 			int lanternRainType, byte lanternRainData) {
@@ -73,7 +73,7 @@ public class Lantern {
 		setBlockX(Integer.parseInt(data.get(1))); //x
 		setBlockY(Integer.parseInt(data.get(2))); //y
 		setBlockZ(Integer.parseInt(data.get(3))); //z
-		setVariableState(Integer.parseInt(data.get(4))); //state
+		setVariableState(LanternState.get(Integer.parseInt(data.get(4)))); //state
 		setDayType(Integer.parseInt(data.get(5))); //day type
 		setDayData(Byte.parseByte(data.get(6))); //day data
 		setNightType(Integer.parseInt(data.get(7))); //night type
@@ -108,7 +108,7 @@ public class Lantern {
 	
 	// Getters and Setters
 	public String getWorld() {
-		return world;
+		return w;
 	}
 	
 	public void setWorld(World world) {
@@ -116,7 +116,7 @@ public class Lantern {
 	}
 	
 	private void setWorld(String world) {
-		this.world = world;
+		this.w = world;
 	}
 	
 	public int getBlockX() {
@@ -200,61 +200,44 @@ public class Lantern {
 	
 	/**
 	 * This returns the current lantern state
-	 * @return Returns the current lantern state;</br>
-	 * 0 = unknown</br>
-	 * 1 = day</br>
-	 * 2 = night</br>
-	 * 3 = rain
+	 * @return Current Lantern State
 	 */
-	public int getState() {
+	public LanternState getState() {
 		return lanternState;
 	}
 	
 	/**
 	 * Set the current lantern state,
-	 * @param state Enter the state which the lantern needs to be as an integer;</br>
-	 * 0 = unknown</br>
-	 * 1 = day</br>
-	 * 2 = night</br>
-	 * 3 = rain
+	 * @param s Lantern State
 	 * @return Returns false when the lantern state isn't valid, if the lantern block isn't changed.
 	 * Returns true when the lantern state and the lantern block is succesfully changed.
 	 */
-	public boolean setState(Server server, int state) {
-		if(state == 0 || state == 1) {
+	public boolean setState(Server server, LanternState s) {
+		if(s == LanternState.UNKNOWN || s == LanternState.DAY) {
 			changeLanternBlock(server, getDayType(), getDayData());
-			lanternState = state;
+			lanternState = s;
 			return true;
 		}
-		if(state == 2) {
+		if(s == LanternState.NIGHT) {
 			changeLanternBlock(server, getNightType(), getNightData());
-			lanternState = state;
+			lanternState = s;
 			return true;
 		}
-		if(state == 3) {
+		if(s == LanternState.RAIN) {
 			changeLanternBlock(server, getRainType(), getRainData());
-			lanternState = state;
+			lanternState = s;
 			return true;
 		}
 		return false;
 	}
 	
 	/**
-	 * This will set the lantern state of the lantern without changing the lantern block in the world</br>
-	 * 0 = unknown</br>
-	 * 1 = day</br>
-	 * 2 = night</br>
-	 * 3 = rain
+	 * This will set the lantern state of the lantern without changing the lantern block in the world
 	 * @param server The server
 	 * @param state The new state
-	 * @return Returns false when the state isn't changed because the state isn't valid
 	 */
-	private boolean setVariableState(int state) {
-		if(state >= 0 || state <= 3) {
-			lanternState = state;
-			return true;
-		}
-		return false;
+	private void setVariableState(LanternState state) {
+		this.lanternState = state;
 	}
 	
 	/**

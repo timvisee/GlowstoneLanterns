@@ -171,11 +171,11 @@ public class GlowstoneLanternsPrebuiltLanterns {
 										stringToInt(lanternDataValues[6]), (byte) stringToInt(lanternDataValues[7]));
 								
 								if(plugin.isRaining(world)) {
-									newLantern.setState(plugin.getServer(), 3);
+									newLantern.setState(plugin.getServer(), LanternState.RAIN);
 								} else if(plugin.isDay(world)) {
-									newLantern.setState(plugin.getServer(), 1);
+									newLantern.setState(plugin.getServer(), LanternState.DAY);
 								} else {
-									newLantern.setState(plugin.getServer(), 2);
+									newLantern.setState(plugin.getServer(), LanternState.NIGHT);
 								}
 							} else {
 								// change block if it isn't a lantern block

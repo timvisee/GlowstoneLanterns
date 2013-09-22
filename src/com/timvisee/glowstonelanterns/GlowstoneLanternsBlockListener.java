@@ -43,11 +43,11 @@ public class GlowstoneLanternsBlockListener implements Listener {
 								plugin.getConfig().getInt("lanternRainTypeID", 89), (byte) plugin.getConfig().getInt("lanternRainDataValue", 0));
 						
 						if(plugin.isRaining(world)) {
-							newLantern.setState(plugin.getServer(), 3);
+							newLantern.setState(plugin.getServer(), LanternState.RAIN);
 						} else if(plugin.isDay(world)) {
-							newLantern.setState(plugin.getServer(), 1);
+							newLantern.setState(plugin.getServer(), LanternState.DAY);
 						} else {
-							newLantern.setState(plugin.getServer(), 2);
+							newLantern.setState(plugin.getServer(), LanternState.NIGHT);
 						}
 						
 						player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.GREEN + "You placed a Glowstone Lantern");

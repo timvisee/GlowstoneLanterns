@@ -5,9 +5,9 @@ import org.bukkit.Server;
 public class LanternUpdate {
 	
 	Lantern l;
-	int newState = 0;
+	LanternState newState = LanternState.UNKNOWN;
 	
-	LanternUpdate(Lantern l, int newState) {
+	LanternUpdate(Lantern l, LanternState newState) {
 		this.l = l;
 		this.newState = newState;
 	}

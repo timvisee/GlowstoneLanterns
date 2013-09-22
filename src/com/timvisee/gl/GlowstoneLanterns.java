@@ -1,4 +1,4 @@
-package com.timvisee.GlowstoneLanterns;
+package com.timvisee.gl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,8 +29,8 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
-import com.timvisee.GlowstoneLanterns.GlowstoneLanternsBlockListener;
-import com.timvisee.GlowstoneLanterns.Lantern;
+import com.timvisee.gl.GlowstoneLanternsBlockListener;
+import com.timvisee.gl.Lantern;
 
 public class GlowstoneLanterns extends JavaPlugin {
 	public static final Logger log = Logger.getLogger("Minecraft");

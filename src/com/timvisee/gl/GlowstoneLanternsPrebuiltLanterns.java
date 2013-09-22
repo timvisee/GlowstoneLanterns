@@ -1,4 +1,4 @@
-package com.timvisee.GlowstoneLanterns;
+package com.timvisee.gl;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;

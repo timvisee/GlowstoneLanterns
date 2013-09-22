@@ -1,4 +1,4 @@
-package com.timvisee.GlowstoneLanterns;
+package com.timvisee.gl;
 
 import org.bukkit.Server;
 import org.bukkit.block.Block;

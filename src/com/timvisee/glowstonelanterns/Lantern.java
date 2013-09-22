@@ -1,4 +1,4 @@
-package com.timvisee.gl;
+package com.timvisee.glowstonelanterns;
 
 import java.util.Arrays;
 import java.util.List;

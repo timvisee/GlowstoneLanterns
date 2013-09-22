@@ -1,4 +1,4 @@
-package com.timvisee.gl;
+package com.timvisee.glowstonelanterns;
 
 import java.util.logging.Logger;
 
@@ -14,7 +14,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import com.timvisee.gl.GlowstoneLanterns;
+import com.timvisee.glowstonelanterns.GlowstoneLanterns;
 
 public class GlowstoneLanternsBlockListener implements Listener {
 	public static GlowstoneLanterns plugin;

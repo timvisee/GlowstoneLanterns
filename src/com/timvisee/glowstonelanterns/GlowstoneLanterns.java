@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.io.*;
 
-import org.anjocaido.groupmanager.GroupManager;
 import org.bukkit.World;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -20,9 +19,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import ru.tehkode.permissions.PermissionManager;
-
-import com.nijiko.permissions.PermissionHandler;
 import com.timvisee.glowstonelanterns.GlowstoneLanternsBlockListener;
 import com.timvisee.glowstonelanterns.Lantern;
 import com.timvisee.glowstonelanterns.manager.GLPermissionsManager;

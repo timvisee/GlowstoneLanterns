@@ -1,0 +1,17 @@
+name: Glowstone Lanterns
+main: com.timvisee.glowstonelanterns.GlowstoneLanterns
+description: 'Make glowstone lanterns, daytime glass & nighttime glowstone!'
+author: timvisee
+website: http://timvisee.com/
+softdepend: [Vault] #hack to fix trove errors
+version: 0.7
+commands:
+  glowstonelantern:
+    description: Toggle Glowstone Lanterns
+    usage: /glowstonelantern
+  glowstonelanterns:
+    description: Toggle Glowstone Lanterns
+    usage: /glowstonelanterns
+  gl:
+    description: Toggle Glowstone Lanterns
+    usage: /gl

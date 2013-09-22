@@ -6,7 +6,6 @@ import java.util.List;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.event.block.BlockRedstoneEvent;
 
 public class Lantern {
 	// Variables

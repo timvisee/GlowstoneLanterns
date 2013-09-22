@@ -462,8 +462,8 @@ public class GlowstoneLanterns extends JavaPlugin {
 	
 	// Check if a world is loaded
 	public boolean isWorldLoaded(String worldName) {
-		List<World> worlds = new ArrayList();
-		List<String> worldNames = new ArrayList();
+		List<World> worlds = new ArrayList<World>();
+		List<String> worldNames = new ArrayList<String>();
 		
 		worlds.addAll(getServer().getWorlds());
 		for(int i=0; i < worlds.size(); i++) {
@@ -672,7 +672,7 @@ public class GlowstoneLanterns extends JavaPlugin {
 					if(canUseGLList((Player) sender)) {
 						if(args.length == 2) {
 							if(args[1].equalsIgnoreCase("l") || args[1].equalsIgnoreCase("lantern") || args[1].equalsIgnoreCase("lanterns")) {
-								List<String> prebuiltLanternsList = new ArrayList();
+								List<String> prebuiltLanternsList = new ArrayList<String>();
 								prebuiltLanternsList.addAll(prebuiltLanternsList());
 								sender.sendMessage(ChatColor.YELLOW + "========== Prebuild Lanterns ==========");
 								String listToShow = "";

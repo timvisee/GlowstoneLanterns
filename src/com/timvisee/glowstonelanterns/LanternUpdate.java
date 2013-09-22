@@ -1,9 +1,9 @@
 package com.timvisee.glowstonelanterns;
 
 import org.bukkit.Server;
-import org.bukkit.block.Block;
 
 public class LanternUpdate {
+	
 	Lantern l;
 	int newState = 0;
 	

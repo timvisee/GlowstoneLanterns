@@ -264,7 +264,7 @@ public class GlowstoneLanterns extends JavaPlugin {
 	        OutputStream out = new FileOutputStream(file);
 	        byte[] buf = new byte[1024];
 	        int len;
-	        while((len=in.read(buf))>0){
+	        while((len=in.read(buf))>0) {
 	            out.write(buf,0,len);
 	        }
 	        out.close();
@@ -281,23 +281,22 @@ public class GlowstoneLanterns extends JavaPlugin {
 	// Save the lanterns to the external file
 	public boolean saveLanterns(boolean hideMessages) {
 		// Save the lanterns list
-		if(!hideMessages){
+		if(!hideMessages)
 			log.info("[Glowstone Lanterns] Saving Glowstone Lanterns...");
-		}
 		
 		try {
 			// Save and write the Lanterns to an external file
 			BufferedWriter out = new BufferedWriter(new FileWriter(lanternsFile));
 			for(int i = 0; i < GLLanterns.size(); i++) {
-				if(i != 0) { out.newLine(); }
+				if(i != 0)
+					out.newLine();
 				out.write(GLLanterns.get(i).getDataString());
 			}
 			out.close();
 
 			// Lanterns saved, show console message and return true
-			if(!hideMessages){
+			if(!hideMessages)
 				log.info("[Glowstone Lanterns] " + String.valueOf(countLanterns()) + " Glowstone Lanterns saved!");
-			}
 			return true;
 			
 		} catch(IOException e) {

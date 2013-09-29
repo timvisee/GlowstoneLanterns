@@ -3,6 +3,7 @@ package com.timvisee.glowstonelanterns;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -93,7 +94,7 @@ public class Lantern {
 		dataString = dataString + ";" + String.valueOf(getBlockX()); //x
 		dataString = dataString + ";" + String.valueOf(getBlockY()); //y
 		dataString = dataString + ";" + String.valueOf(getBlockZ()); //z
-		dataString = dataString + ";" + String.valueOf(getState()); // state
+		dataString = dataString + ";" + String.valueOf(getState().getId()); // state
 		dataString = dataString + ";" + String.valueOf(getDayType()); //day type
 		dataString = dataString + ";" + String.valueOf(getDayData()); //day data
 		dataString = dataString + ";" + String.valueOf(getNightType()); //night type
@@ -253,7 +254,7 @@ public class Lantern {
 		block.setTypeId(typeId);
 		block.setData(data);
 		
-		if(block.getTypeId() == 124) {
+		if(block.getType().equals(Material.REDSTONE_LAMP_ON)) {
 			//net.minecraft.server.Block.byId[block.getTypeId()].interact(((CraftWorld)block.getWorld()).getHandle(),block.getX(), block.getY(), block.getZ(),((CraftPlayer)server.getPlayer("")).getHandle());
 		
 			//net.minecraft.server.Block.byId[block.getTypeId()].interact((net.minecraft.server.World) block.getWorld(), block.getX(), block.getY(), block.getZ(), (EntityHuman) server.getPlayer(""));

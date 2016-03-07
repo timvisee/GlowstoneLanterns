@@ -11,8 +11,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import com.timvisee.glowstonelanterns.GlowstoneLanterns;
-
 public class GlowstoneLanternsBlockListener implements Listener {
 	public static GlowstoneLanterns plugin;
 

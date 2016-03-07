@@ -19,8 +19,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.timvisee.glowstonelanterns.GlowstoneLanternsBlockListener;
-import com.timvisee.glowstonelanterns.Lantern;
 import com.timvisee.glowstonelanterns.manager.GLPermissionsManager;
 
 public class GlowstoneLanterns extends JavaPlugin {
@@ -36,23 +34,17 @@ public class GlowstoneLanterns extends JavaPlugin {
 
 	// Managers
 	private GLPermissionsManager pm;
-	
-	
-	
-	
-	
-	
-	
+
 	// User data
-	public final HashMap<Player, ArrayList<Block>> GLUsers = new HashMap<Player, ArrayList<Block>>();
-	public final HashMap<Player, String> GLUsersPrebuiltLanterns = new HashMap<Player, String>();
-	public final HashMap<Player, Boolean> GLUsersCreatePrebuiltLanterns = new HashMap<Player, Boolean>();
+	public final HashMap<Player, ArrayList<Block>> GLUsers = new HashMap<>();
+	public final HashMap<Player, String> GLUsersPrebuiltLanterns = new HashMap<>();
+	public final HashMap<Player, Boolean> GLUsersCreatePrebuiltLanterns = new HashMap<>();
 	
 	// Lanterns
-	public List<Lantern> GLLanterns = new ArrayList<Lantern>();
+	public List<Lantern> GLLanterns = new ArrayList<>();
 	
 	// Lantern updates
-	public List<LanternUpdate> lanternUpdates = new ArrayList<LanternUpdate>();
+	public List<LanternUpdate> lanternUpdates = new ArrayList<>();
 	
 	// Lantern delay settings
 	boolean lanternDelayEnabled = true;
@@ -142,33 +134,7 @@ public class GlowstoneLanterns extends JavaPlugin {
 	public GLPermissionsManager getPermissionsManager() {
 		return this.pm;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	public void checkConigFilesExist() throws Exception {
 		if(!getDataFolder().exists()) {
 			log.info("[Glowstone Lanterns] Creating default files");
@@ -301,7 +267,7 @@ public class GlowstoneLanterns extends JavaPlugin {
 			
 		} catch(IOException e) {
 			// Errir while saving, print error in console
-			System.out.println(e);
+			e.printStackTrace();
 			log.info("[Glowstone Lanterns] Error while saving Glowstone Lanterns!");
 			return false;
 		}
@@ -401,8 +367,8 @@ public class GlowstoneLanterns extends JavaPlugin {
 		List<String> worldNames = new ArrayList<String>();
 		
 		worlds.addAll(getServer().getWorlds());
-		for(int i=0; i < worlds.size(); i++) {
-			worldNames.add(worlds.get(i).getName());
+		for(World world : worlds) {
+			worldNames.add(world.getName());
 		}
 		if(worldNames.contains(worldName)) {
 			return true;
@@ -452,7 +418,7 @@ public class GlowstoneLanterns extends JavaPlugin {
 				}
 				
 				// World state not save yet, put unknown state in list
-				if(lastDayState.containsKey(world) == false) {
+				if(!lastDayState.containsKey(world)) {
 					lastDayState.put(world, LanternState.UNKNOWN);
 				}
 				
@@ -508,7 +474,8 @@ public class GlowstoneLanterns extends JavaPlugin {
 	public boolean isInt(String string) {
 		// Check if a string is an integer
         try {
-            Integer.parseInt(string);
+			//noinspection ResultOfMethodCallIgnored
+			Integer.parseInt(string);
         } catch (NumberFormatException ex) {
             return false;
         }
@@ -592,10 +559,10 @@ public class GlowstoneLanterns extends JavaPlugin {
 							togglePlaceFinishedLanterns((Player) sender, "", true, true);
 							return true;
 						} else {
-							if(isGLEnabled((Player) sender) == false) {
+							if(!isGLEnabled((Player) sender)) {
 								toggleGL((Player) sender);
 							}
-							togglePlaceFinishedLanterns((Player) sender, args[1].toString(), false, true);
+							togglePlaceFinishedLanterns((Player) sender, args[1], false, true);
 							return true;
 						}
 					} else {
@@ -708,17 +675,20 @@ public class GlowstoneLanterns extends JavaPlugin {
 		File[] listOfFiles = folder.listFiles();
 		List<String> prebuiltLanternsList = new ArrayList<String>();
 
-	    for (int i = 0; i < listOfFiles.length; i++) {
-	    	if (listOfFiles[i].isFile()) {
-	    		if(listOfFiles[i].getPath().endsWith(".gllantern")) {
-	    			prebuiltLanternsList.add(listOfFiles[i].getName());
-	    		}
-	    	} else if (listOfFiles[i].isDirectory()) {
-	    		// The item is a directory, do nothing
-	    	} else {
-	    		// File/directory is something else, do nothing
-	    	}
-	    }
+		assert listOfFiles != null;
+
+		for(File listOfFile : listOfFiles) {
+			if (listOfFile.isFile()) {
+				if (listOfFile.getPath().endsWith(".gllantern")) {
+					prebuiltLanternsList.add(listOfFile.getName());
+				}
+			}
+//			else if (listOfFile.isDirectory()) {
+//				// The item is a directory, do nothing
+//			} else {
+//				// File/directory is something else, do nothing
+//			}
+		}
 	    
 	    return prebuiltLanternsList;
 	}
@@ -740,7 +710,7 @@ public class GlowstoneLanterns extends JavaPlugin {
 	
 	// Toggle the 'Place finished lanterns' command
 	public void togglePlaceFinishedLanterns(Player player, String lanternName, boolean disablePlaceLanterns, boolean showMessage) {
-		if(disablePlaceLanterns == false) {
+		if(!disablePlaceLanterns) {
 			File lanternFile = new File(prebuiltLanternsFolder + "/" + lanternName + ".gllantern");
 			
 			if(lanternFile.exists()) {
@@ -756,7 +726,7 @@ public class GlowstoneLanterns extends JavaPlugin {
 			if(GLUsersPrebuiltLanterns.containsKey(player)) {
 				GLUsersPrebuiltLanterns.remove(player);
 			}
-			if(showMessage == true) {
+			if(showMessage) {
 				player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Place prebuilt lanterns " + ChatColor.DARK_RED + "Disabled");
 			}
 		}
@@ -776,19 +746,12 @@ public class GlowstoneLanterns extends JavaPlugin {
 	// Check if it's day or night in a world
 	public boolean isDay(World world) {
         long time = world.getTime();
-        if(time < getConfig().getInt("NightStart", 12400) || time > getConfig().getInt("DayStart", 23700)) {
-        	return true;
-        } else {
-        	return false;
-        }
+		return time < getConfig().getInt("NightStart", 12400) || time > getConfig().getInt("DayStart", 23700);
 	}
 	
 	// Check if it's raining (storm) in a world
 	public boolean isRaining(World world) {
-		if(world.hasStorm()) {
-			return true;
-		}
-		return false;
+		return world.hasStorm();
 	}
 	
 	/**

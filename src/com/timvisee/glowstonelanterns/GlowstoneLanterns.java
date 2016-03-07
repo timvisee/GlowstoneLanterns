@@ -22,789 +22,804 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.timvisee.glowstonelanterns.manager.GLPermissionsManager;
 
 public class GlowstoneLanterns extends JavaPlugin {
-	
-	// Glowstone Lanterns static instance
-	public static GlowstoneLanterns instance;
-	
-	// Logger
-	public static final Logger log = Logger.getLogger("Minecraft");
-	
-	// Listeners
-	private final GlowstoneLanternsBlockListener blockListener = new GlowstoneLanternsBlockListener(this);
 
-	// Managers
-	private GLPermissionsManager pm;
+    // Glowstone Lanterns static instance
+    public static GlowstoneLanterns instance;
 
-	// User data
-	public final HashMap<Player, ArrayList<Block>> GLUsers = new HashMap<>();
-	public final HashMap<Player, String> GLUsersPrebuiltLanterns = new HashMap<>();
-	public final HashMap<Player, Boolean> GLUsersCreatePrebuiltLanterns = new HashMap<>();
-	
-	// Lanterns
-	public List<Lantern> GLLanterns = new ArrayList<>();
-	
-	// Lantern updates
-	public List<LanternUpdate> lanternUpdates = new ArrayList<>();
-	
-	// Lantern delay settings
-	boolean lanternDelayEnabled = true;
-	int lanternDelayTime = 5;
-	
-	/* Day States;
-	 * 0 = unknown
-	 * 1 = day
-	 * 2 = night
-	 * 3 = rain
-	 */
-	public HashMap<World, LanternState> lastDayState = new HashMap<World, LanternState>();
-	
-	// Setup some default file and folder paths, these will change to the config ones in the onEnable function
-	private File lanternsFile = new File("plugins/Glowstone Lanterns/Glowstone Lanterns.txt");
-	public File prebuiltLanternsFolder = new File("Glowstone Lanterns/Prebuilt Lanterns");
-	
-	/**
-	 * Constructor
-	 */
-	public GlowstoneLanterns() {
-		// Define the Glowstone Lanterns static instance variable
-		instance = this;
-	}
+    // Logger
+    public static final Logger log = Logger.getLogger("Minecraft");
 
-	public void onEnable() {
-		// Check if all the config file exists
-		try {
-			checkConigFilesExist();
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    
-		// Setup costum files and folders
-		lanternsFile = new File(getDataFolder() + "/" + getConfig().getString("GlowstoneLanternsFile", "Glowstone Lanterns.txt"));
-		prebuiltLanternsFolder = new File(getDataFolder() + "/" + getConfig().getString("PrebuiltLanternsFolder", "Prebuilt Lanterns"));
+    // Listeners
+    private final GlowstoneLanternsBlockListener blockListener = new GlowstoneLanternsBlockListener(this);
 
-		// Set up the permissions manager
-	    setUpPermissionsManager();
-	    
-		// Load lanterns
-		loadLanterns();
-		
-		// Register events
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(this.blockListener, this);
-		
-		// Create new timer to check world times and change lanterns if needed
-		getServer().getScheduler().scheduleSyncRepeatingTask( this, new Runnable() { public void run() { timer(); } }, 20, 20); // Run a timer that run's the timer() function every 1 seccond
-		
-		// Lantern delay settings
-		this.lanternDelayEnabled = getConfig().getBoolean("changeDelayEnabled", true);
-		if(getConfig().getInt("changeDelayTime", 5) >= 1) {
-			this.lanternDelayTime = getConfig().getInt("changeDelayTime", 5);
-		} else {
-			log.info("[Glowstone Lanterns] The 'changeDelayTime' property in the config file has to be 1 or above");
-		}
-		if(this.lanternDelayEnabled) {
-			// Start the scheduled thask to change delayed lanterns
-			getServer().getScheduler().scheduleSyncRepeatingTask( this, new Runnable() { public void run() { updateNextLantern(); } }, this.lanternDelayTime, this.lanternDelayTime); // Run a timer to change delayed lanaterns
-		}
-		
-		// Plugin enabled
-		PluginDescriptionFile pdfFile = getDescription();
-		log.info("[Glowstone Lanterns] Glowstone Lanterns v" + pdfFile.getVersion() + " Started");
-	}	
+    // Managers
+    private GLPermissionsManager pm;
 
-	public void onDisable() {		
-		// Plugin disabled
-		PluginDescriptionFile pdfFile = getDescription();
-		log.info("[Glowstone Lanterns] Glowstone Lanterns v" + pdfFile.getVersion() + " Disabled");
-	}
-	
-	/**
-	 * Setup the permissions manager
-	 */
-	public void setUpPermissionsManager() {
-		// Setup the permissions manager
-		this.pm = new GLPermissionsManager(this.getServer(), this, this.getLogger());
-		this.pm.setup();
-	}
-	
-	/**
-	 * Get the permissions manager
-	 * @return permissions manager
-	 */
-	public GLPermissionsManager getPermissionsManager() {
-		return this.pm;
-	}
+    // User data
+    public final HashMap<Player, ArrayList<Block>> GLUsers = new HashMap<>();
+    public final HashMap<Player, String> GLUsersPrebuiltLanterns = new HashMap<>();
+    public final HashMap<Player, Boolean> GLUsersCreatePrebuiltLanterns = new HashMap<>();
 
-	public void checkConigFilesExist() throws Exception {
-		if(!getDataFolder().exists()) {
-			log.info("[Glowstone Lanterns] Creating default files");
-			getDataFolder().mkdirs();
-		}
-		File f = new File(getDataFolder(), "Prebuilt Lanterns");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Creating prebuilt lanterns folder");
-			f.mkdirs();
-		}
-		
-		f = new File(getDataFolder(), "config.yml");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/config.yml"), f);
-		}
-		
-		f = new File(getDataFolder(), "lanterns.list");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/lanterns.list"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/1.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/1.gllantern"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/2.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/2.gllantern"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/3.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/3.gllantern"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/4.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/4.gllantern"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/5.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/5.gllantern"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/6.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/6.gllantern"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/7.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/7.gllantern"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/8.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/8.gllantern"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/ceiling.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/ceiling.gllantern"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/fireplace.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/fireplace.gllantern"), f);
-		}
-		
-		f = new File(getDataFolder(), "Prebuilt Lanterns/pumpkin.gllantern");
-		if(!f.exists()) {
-			log.info("[Glowstone Lanterns] Generating new config file");
-			copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/pumpkin.gllantern"), f);
-		}
-	}
-	
-	private void copy(InputStream in, File file) {
-	    try {
-	        OutputStream out = new FileOutputStream(file);
-	        byte[] buf = new byte[1024];
-	        int len;
-	        while((len=in.read(buf))>0) {
-	            out.write(buf,0,len);
-	        }
-	        out.close();
-	        in.close();
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	}
-	
-	public boolean saveLanterns() {
-		return saveLanterns(false);
-	}
-	
-	// Save the lanterns to the external file
-	public boolean saveLanterns(boolean hideMessages) {
-		// Save the lanterns list
-		if(!hideMessages)
-			log.info("[Glowstone Lanterns] Saving Glowstone Lanterns...");
-		
-		try {
-			// Save and write the Lanterns to an external file
-			BufferedWriter out = new BufferedWriter(new FileWriter(lanternsFile));
-			for(int i = 0; i < GLLanterns.size(); i++) {
-				if(i != 0)
-					out.newLine();
-				out.write(GLLanterns.get(i).getDataString());
-			}
-			out.close();
+    // Lanterns
+    public List<Lantern> GLLanterns = new ArrayList<>();
 
-			// Lanterns saved, show console message and return true
-			if(!hideMessages)
-				log.info("[Glowstone Lanterns] " + String.valueOf(countLanterns()) + " Glowstone Lanterns saved!");
-			return true;
-			
-		} catch(IOException e) {
-			// Errir while saving, print error in console
-			e.printStackTrace();
-			log.info("[Glowstone Lanterns] Error while saving Glowstone Lanterns!");
-			return false;
-		}
-	}
-	
-	public boolean loadLanterns() {
-		return loadLanterns(false);
-	}
-	
-	// Load all the lanterns from the external file
-	public boolean loadLanterns(boolean hideMessages) {
-		// Load all the lanterns. Check if file exists first
-	    if(lanternsFile.exists()) {
-	    	
-	    	if(!hideMessages) {
-	    		log.info("[Glowstone Lanterns] Loading Glowstone Lanterns...");
-	    	}
-			
-	    	File file = lanternsFile;
-	        FileInputStream fis = null;
-	        BufferedInputStream bis = null;
-	        DataInputStream dis = null;
+    // Lantern updates
+    public List<LanternUpdate> lanternUpdates = new ArrayList<>();
 
-	        try {
-				// Here BufferedInputStream is added for fast reading.
-				fis = new FileInputStream(file);
-				bis = new BufferedInputStream(fis);
-				dis = new DataInputStream(bis);
-				
-				// Clean array/list first
-				GLLanterns.clear();
-				
-				while (dis.available() != 0) {
-					GLLanterns.add(new Lantern(dis.readLine()));
-				}
-				fis.close();
-				bis.close();
-				dis.close();
-				
-				// Lanterns loaded, show message return true
-				if(!hideMessages) {
-					log.info("[Glowstone Lanterns] " + String.valueOf(countLanterns()) + " Glowstone Lanterns loaded!");
-				}
-				return true;
-	        } catch (FileNotFoundException e) {
-	        	// Something goes wrong with loading the lanterns, show an error message in the console and return false
-	        	e.printStackTrace();
-	    		log.info("[Glowstone Lanterns] Error by loading Glowstone Lanterns!");
-	    		return false;
-	        } catch (IOException e) {
-	        	// Something goes wrong with loading the lanterns, show an error message in the console and return false
-	        	e.printStackTrace();
-	    		log.info("[Glowstone Lanterns] Error by loading Glowstone Lanterns!");
-	    		return false;
-	        }
-	    } else {
-	    	// The external lanterns file isn't found, show an message in the console and return false
-    		log.info("[Glowstone Lanterns] File 'Glowstone Lanterns/Glowstone Lanterns.txt' not found!");
-    		return false;
-	    }
-	}
-	
-	public int countLanterns() {
-		return GLLanterns.size();
-	}
-	
-	// Get config from custom path
-	public FileConfiguration getConfigurationFromPath(String filePath, boolean insideDataFolder) {
-		if(insideDataFolder) {
-			File file = new File(getDataFolder(), filePath);
-			return getConfigFromPath(file);
-		} else {
-			File file = new File(filePath);
-			return getConfigFromPath(file);
-		}
-	}
-	
-	public FileConfiguration getConfigFromPath(File file) {
-		FileConfiguration c;
-		
-		if (file == null) {
-		    return null;
-		}
+    // Lantern delay settings
+    boolean lanternDelayEnabled = true;
+    int lanternDelayTime = 5;
 
-	    c = YamlConfiguration.loadConfiguration(file);
-	    
-	    return c;
-	}
+    /* Day States;
+     * 0 = unknown
+     * 1 = day
+     * 2 = night
+     * 3 = rain
+     */
+    public HashMap<World, LanternState> lastDayState = new HashMap<World, LanternState>();
 
-	public String booleanToString(boolean b) {
-		return Boolean.toString(b);
-	}
-	
-	// Check if a world is loaded
-	public boolean isWorldLoaded(String worldName) {
-		List<World> worlds = new ArrayList<World>();
-		List<String> worldNames = new ArrayList<String>();
-		
-		worlds.addAll(getServer().getWorlds());
-		for(World world : worlds) {
-			worldNames.add(world.getName());
-		}
-		if(worldNames.contains(worldName)) {
-			return true;
-		}
-		// No world loaded with this name, return false
-		return false;
-	}
-	
-	// Get the facing direction from a player
-	public String getFacingDirectionFromPlayer(Player player) {
-		Location loc = player.getLocation();
-	    String facing[] = {"W", "N", "E", "S"};
-	    double yaw = ((loc.getYaw()+22.5) % 360);
-	    if (yaw < 0) yaw += 360;
-	    return facing[(int)(yaw / 90)];
-	}
-	
-	// Get the facing direction from a player
-	public int getFacingDirectionFromPlayerInt(Player player) {
-		Location loc = player.getLocation();
-	    int facing[] = {0, 1, 2, 3};
-	    double yaw = ((loc.getYaw()+22.5) % 360);
-	    if (yaw < 0) yaw += 360;
-	    return facing[(int)(yaw / 90)];
-	}
-	
-	// Get a list of all worlds
-	public List<World> getAllWorlds() {
-		return getServer().getWorlds();
-	}
-	
-	
-	public void timer() {
-		// Check lanterns for every world
-		for(World world : getAllWorlds()) {
-			
-			// Check if the current world is loaded
-			if(isWorldLoaded(world.getName())) {
-				// Get current day state of the world
-				LanternState currentDayState = LanternState.UNKNOWN;
-				if(isRaining(world)) {
-					currentDayState = LanternState.RAIN;
-				} else if(isDay(world)) {
-					currentDayState = LanternState.DAY;
-				} else {
-					currentDayState = LanternState.NIGHT;
-				}
-				
-				// World state not save yet, put unknown state in list
-				if(!lastDayState.containsKey(world)) {
-					lastDayState.put(world, LanternState.UNKNOWN);
-				}
-				
-				// Check if last state was different
-				if(lastDayState.get(world) != currentDayState) {
-					// Last day state was different
-					// Show console message if needed
-					if(currentDayState == LanternState.DAY) {
-						if(getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
-							System.out.println("[Glowstone Lanterns] Day in '" + world.getName() + "', set lanterns");
-						}
-					} else if(currentDayState == LanternState.NIGHT) {
-						if(getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
-							System.out.println("[Glowstone Lanterns] Night in '" + world.getName() + "', set lanterns");
-						}
-					} else {
-						if(getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
-							System.out.println("[Glowstone Lanterns] Rain in '" + world.getName() + "', set lanterns");
-						}
-					}
-					
-					// Update state in the list
-					lastDayState.remove(world);
-					lastDayState.put(world, currentDayState);
-					
-					if(GLLanterns.size() != 0) {
-						for(Lantern l : GLLanterns) {
-							if(l.getWorld().equals(world.getName())) {
-								
-								if(this.lanternDelayEnabled) {
-									LanternUpdate lu = new LanternUpdate(l, currentDayState);
-									lanternUpdates.add(lu);
-								} else {
-									l.setState(getServer(), currentDayState);
-								}
-							}
-						}
-					}
-					
-					saveLanterns(true);
-				}
-			}
-		}
-	}
-	
-	public void updateNextLantern() {
-		if(this.lanternUpdates.size() > 0) {
-			this.lanternUpdates.get(0).updateLantern(getServer());
-			this.lanternUpdates.remove(0);
-		}
-	}
-	
-	public boolean isInt(String string) {
-		// Check if a string is an integer
+    // Setup some default file and folder paths, these will change to the config ones in the onEnable function
+    private File lanternsFile = new File("plugins/Glowstone Lanterns/Glowstone Lanterns.txt");
+    public File prebuiltLanternsFolder = new File("Glowstone Lanterns/Prebuilt Lanterns");
+
+    /**
+     * Constructor
+     */
+    public GlowstoneLanterns() {
+        // Define the Glowstone Lanterns static instance variable
+        instance = this;
+    }
+
+    public void onEnable() {
+        // Check if all the config file exists
         try {
-			//noinspection ResultOfMethodCallIgnored
-			Integer.parseInt(string);
+            checkConigFilesExist();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Setup costum files and folders
+        lanternsFile = new File(getDataFolder() + "/" + getConfig().getString("GlowstoneLanternsFile", "Glowstone Lanterns.txt"));
+        prebuiltLanternsFolder = new File(getDataFolder() + "/" + getConfig().getString("PrebuiltLanternsFolder", "Prebuilt Lanterns"));
+
+        // Set up the permissions manager
+        setUpPermissionsManager();
+
+        // Load lanterns
+        loadLanterns();
+
+        // Register events
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(this.blockListener, this);
+
+        // Create new timer to check world times and change lanterns if needed
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            public void run() {
+                timer();
+            }
+        }, 20, 20); // Run a timer that run's the timer() function every 1 seccond
+
+        // Lantern delay settings
+        this.lanternDelayEnabled = getConfig().getBoolean("changeDelayEnabled", true);
+        if (getConfig().getInt("changeDelayTime", 5) >= 1) {
+            this.lanternDelayTime = getConfig().getInt("changeDelayTime", 5);
+        } else {
+            log.info("[Glowstone Lanterns] The 'changeDelayTime' property in the config file has to be 1 or above");
+        }
+        if (this.lanternDelayEnabled) {
+            // Start the scheduled thask to change delayed lanterns
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+                public void run() {
+                    updateNextLantern();
+                }
+            }, this.lanternDelayTime, this.lanternDelayTime); // Run a timer to change delayed lanaterns
+        }
+
+        // Plugin enabled
+        PluginDescriptionFile pdfFile = getDescription();
+        log.info("[Glowstone Lanterns] Glowstone Lanterns v" + pdfFile.getVersion() + " Started");
+    }
+
+    public void onDisable() {
+        // Plugin disabled
+        PluginDescriptionFile pdfFile = getDescription();
+        log.info("[Glowstone Lanterns] Glowstone Lanterns v" + pdfFile.getVersion() + " Disabled");
+    }
+
+    /**
+     * Setup the permissions manager
+     */
+    public void setUpPermissionsManager() {
+        // Setup the permissions manager
+        this.pm = new GLPermissionsManager(this.getServer(), this, this.getLogger());
+        this.pm.setup();
+    }
+
+    /**
+     * Get the permissions manager
+     *
+     * @return permissions manager
+     */
+    public GLPermissionsManager getPermissionsManager() {
+        return this.pm;
+    }
+
+    public void checkConigFilesExist() throws Exception {
+        if (!getDataFolder().exists()) {
+            log.info("[Glowstone Lanterns] Creating default files");
+            getDataFolder().mkdirs();
+        }
+        File f = new File(getDataFolder(), "Prebuilt Lanterns");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Creating prebuilt lanterns folder");
+            f.mkdirs();
+        }
+
+        f = new File(getDataFolder(), "config.yml");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/config.yml"), f);
+        }
+
+        f = new File(getDataFolder(), "lanterns.list");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/lanterns.list"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/1.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/1.gllantern"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/2.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/2.gllantern"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/3.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/3.gllantern"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/4.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/4.gllantern"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/5.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/5.gllantern"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/6.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/6.gllantern"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/7.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/7.gllantern"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/8.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/8.gllantern"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/ceiling.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/ceiling.gllantern"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/fireplace.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/fireplace.gllantern"), f);
+        }
+
+        f = new File(getDataFolder(), "Prebuilt Lanterns/pumpkin.gllantern");
+        if (!f.exists()) {
+            log.info("[Glowstone Lanterns] Generating new config file");
+            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/pumpkin.gllantern"), f);
+        }
+    }
+
+    private void copy(InputStream in, File file) {
+        try {
+            OutputStream out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            out.close();
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean saveLanterns() {
+        return saveLanterns(false);
+    }
+
+    // Save the lanterns to the external file
+    public boolean saveLanterns(boolean hideMessages) {
+        // Save the lanterns list
+        if (!hideMessages)
+            log.info("[Glowstone Lanterns] Saving Glowstone Lanterns...");
+
+        try {
+            // Save and write the Lanterns to an external file
+            BufferedWriter out = new BufferedWriter(new FileWriter(lanternsFile));
+            for (int i = 0; i < GLLanterns.size(); i++) {
+                if (i != 0)
+                    out.newLine();
+                out.write(GLLanterns.get(i).getDataString());
+            }
+            out.close();
+
+            // Lanterns saved, show console message and return true
+            if (!hideMessages)
+                log.info("[Glowstone Lanterns] " + String.valueOf(countLanterns()) + " Glowstone Lanterns saved!");
+            return true;
+
+        } catch (IOException e) {
+            // Errir while saving, print error in console
+            e.printStackTrace();
+            log.info("[Glowstone Lanterns] Error while saving Glowstone Lanterns!");
+            return false;
+        }
+    }
+
+    public boolean loadLanterns() {
+        return loadLanterns(false);
+    }
+
+    // Load all the lanterns from the external file
+    public boolean loadLanterns(boolean hideMessages) {
+        // Load all the lanterns. Check if file exists first
+        if (lanternsFile.exists()) {
+
+            if (!hideMessages) {
+                log.info("[Glowstone Lanterns] Loading Glowstone Lanterns...");
+            }
+
+            File file = lanternsFile;
+            FileInputStream fis = null;
+            BufferedInputStream bis = null;
+            DataInputStream dis = null;
+
+            try {
+                // Here BufferedInputStream is added for fast reading.
+                fis = new FileInputStream(file);
+                bis = new BufferedInputStream(fis);
+                dis = new DataInputStream(bis);
+
+                // Clean array/list first
+                GLLanterns.clear();
+
+                while (dis.available() != 0) {
+                    GLLanterns.add(new Lantern(dis.readLine()));
+                }
+                fis.close();
+                bis.close();
+                dis.close();
+
+                // Lanterns loaded, show message return true
+                if (!hideMessages) {
+                    log.info("[Glowstone Lanterns] " + String.valueOf(countLanterns()) + " Glowstone Lanterns loaded!");
+                }
+                return true;
+            } catch (FileNotFoundException e) {
+                // Something goes wrong with loading the lanterns, show an error message in the console and return false
+                e.printStackTrace();
+                log.info("[Glowstone Lanterns] Error by loading Glowstone Lanterns!");
+                return false;
+            } catch (IOException e) {
+                // Something goes wrong with loading the lanterns, show an error message in the console and return false
+                e.printStackTrace();
+                log.info("[Glowstone Lanterns] Error by loading Glowstone Lanterns!");
+                return false;
+            }
+        } else {
+            // The external lanterns file isn't found, show an message in the console and return false
+            log.info("[Glowstone Lanterns] File 'Glowstone Lanterns/Glowstone Lanterns.txt' not found!");
+            return false;
+        }
+    }
+
+    public int countLanterns() {
+        return GLLanterns.size();
+    }
+
+    // Get config from custom path
+    public FileConfiguration getConfigurationFromPath(String filePath, boolean insideDataFolder) {
+        if (insideDataFolder) {
+            File file = new File(getDataFolder(), filePath);
+            return getConfigFromPath(file);
+        } else {
+            File file = new File(filePath);
+            return getConfigFromPath(file);
+        }
+    }
+
+    public FileConfiguration getConfigFromPath(File file) {
+        FileConfiguration c;
+
+        if (file == null) {
+            return null;
+        }
+
+        c = YamlConfiguration.loadConfiguration(file);
+
+        return c;
+    }
+
+    public String booleanToString(boolean b) {
+        return Boolean.toString(b);
+    }
+
+    // Check if a world is loaded
+    public boolean isWorldLoaded(String worldName) {
+        List<World> worlds = new ArrayList<World>();
+        List<String> worldNames = new ArrayList<String>();
+
+        worlds.addAll(getServer().getWorlds());
+        for (World world : worlds) {
+            worldNames.add(world.getName());
+        }
+        if (worldNames.contains(worldName)) {
+            return true;
+        }
+        // No world loaded with this name, return false
+        return false;
+    }
+
+    // Get the facing direction from a player
+    public String getFacingDirectionFromPlayer(Player player) {
+        Location loc = player.getLocation();
+        String facing[] = {"W", "N", "E", "S"};
+        double yaw = ((loc.getYaw() + 22.5) % 360);
+        if (yaw < 0) yaw += 360;
+        return facing[(int) (yaw / 90)];
+    }
+
+    // Get the facing direction from a player
+    public int getFacingDirectionFromPlayerInt(Player player) {
+        Location loc = player.getLocation();
+        int facing[] = {0, 1, 2, 3};
+        double yaw = ((loc.getYaw() + 22.5) % 360);
+        if (yaw < 0) yaw += 360;
+        return facing[(int) (yaw / 90)];
+    }
+
+    // Get a list of all worlds
+    public List<World> getAllWorlds() {
+        return getServer().getWorlds();
+    }
+
+
+    public void timer() {
+        // Check lanterns for every world
+        for (World world : getAllWorlds()) {
+
+            // Check if the current world is loaded
+            if (isWorldLoaded(world.getName())) {
+                // Get current day state of the world
+                LanternState currentDayState = LanternState.UNKNOWN;
+                if (isRaining(world)) {
+                    currentDayState = LanternState.RAIN;
+                } else if (isDay(world)) {
+                    currentDayState = LanternState.DAY;
+                } else {
+                    currentDayState = LanternState.NIGHT;
+                }
+
+                // World state not save yet, put unknown state in list
+                if (!lastDayState.containsKey(world)) {
+                    lastDayState.put(world, LanternState.UNKNOWN);
+                }
+
+                // Check if last state was different
+                if (lastDayState.get(world) != currentDayState) {
+                    // Last day state was different
+                    // Show console message if needed
+                    if (currentDayState == LanternState.DAY) {
+                        if (getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
+                            System.out.println("[Glowstone Lanterns] Day in '" + world.getName() + "', set lanterns");
+                        }
+                    } else if (currentDayState == LanternState.NIGHT) {
+                        if (getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
+                            System.out.println("[Glowstone Lanterns] Night in '" + world.getName() + "', set lanterns");
+                        }
+                    } else {
+                        if (getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
+                            System.out.println("[Glowstone Lanterns] Rain in '" + world.getName() + "', set lanterns");
+                        }
+                    }
+
+                    // Update state in the list
+                    lastDayState.remove(world);
+                    lastDayState.put(world, currentDayState);
+
+                    if (GLLanterns.size() != 0) {
+                        for (Lantern l : GLLanterns) {
+                            if (l.getWorld().equals(world.getName())) {
+
+                                if (this.lanternDelayEnabled) {
+                                    LanternUpdate lu = new LanternUpdate(l, currentDayState);
+                                    lanternUpdates.add(lu);
+                                } else {
+                                    l.setState(getServer(), currentDayState);
+                                }
+                            }
+                        }
+                    }
+
+                    saveLanterns(true);
+                }
+            }
+        }
+    }
+
+    public void updateNextLantern() {
+        if (this.lanternUpdates.size() > 0) {
+            this.lanternUpdates.get(0).updateLantern(getServer());
+            this.lanternUpdates.remove(0);
+        }
+    }
+
+    public boolean isInt(String string) {
+        // Check if a string is an integer
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            Integer.parseInt(string);
         } catch (NumberFormatException ex) {
             return false;
         }
         return true;
     }
-	
-	// Add new lantern to lantern list
-	public Lantern addLanternToList(World world, Block block,
-			int lanternDayType, byte lanternDayData,
-			int lanternNightType, byte lanternNightData,
-			int lanternRainType, byte lanternRainData) {
-		
-		Lantern newLantern = new Lantern(world.getName(),
-				block.getX(), block.getY(), block.getZ(),
-				LanternState.UNKNOWN,
-				lanternDayType, lanternDayData,
-				lanternNightType, lanternNightData,
-				lanternRainType, lanternRainData);
-		
-		GLLanterns.add(newLantern);
-		
-		saveLanterns(true);
-		
-		return newLantern;
-	}
-	
-	// Check if a block is a lantern
-	public boolean isLantern(World world, Block block) {
-		for(Lantern item : GLLanterns) {
-			if(item.getWorld().equals(world.getName())) {
-				if(item.getBlock(getServer()).equals(block)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	// Remove lantern from list
-	public void removeLanternFromList(World world, Block block) {
-		List<Lantern> remove = new ArrayList<Lantern>();
-		for(Lantern item : GLLanterns) {
-			if(item.getWorld().equals(world.getName())) {
-				if(item.getBlock(getServer()).equals(block)) {
-					remove.add(item);
-				}
-			}
-		}
-		
-		for(Lantern item : remove) {
-			GLLanterns.remove(item);
-		}
-		
-		saveLanterns(true);
-	}
 
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		
-		if (commandLabel.equalsIgnoreCase("glowstonelantern") || commandLabel.equalsIgnoreCase("glowstonelanterns") || commandLabel.equalsIgnoreCase("gl")) {
-			
-			if(args.length == 0) {
-				if(!(sender instanceof Player)) {
-					sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You could only use this command in-game");
-					return true;
-				}
-				
-				if(isGLEnabled((Player) sender)) {
-					togglePlaceFinishedLanterns((Player) sender, "", true, false);
-				}
-				toggleGL((Player) sender);
-				return true;
-				
-			} else {
-				if(args[0].equalsIgnoreCase("lantern") || args[0].equalsIgnoreCase("l")) {
-					if(!(sender instanceof Player)) {
-						sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You could only use this command in-game");
-						return true;
-					}
-					if(args.length == 2) {
-						if(args[1].equalsIgnoreCase("")) {
-							togglePlaceFinishedLanterns((Player) sender, "", true, true);
-							return true;
-						} else {
-							if(!isGLEnabled((Player) sender)) {
-								toggleGL((Player) sender);
-							}
-							togglePlaceFinishedLanterns((Player) sender, args[1], false, true);
-							return true;
-						}
-					} else {
-						togglePlaceFinishedLanterns((Player) sender, "", true, true);
-						return true;
-					}
-					
-				} else if(args[0].equalsIgnoreCase("list")) {
-					if(canUseGLList((Player) sender)) {
-						if(args.length == 2) {
-							if(args[1].equalsIgnoreCase("l") || args[1].equalsIgnoreCase("lantern") || args[1].equalsIgnoreCase("lanterns")) {
-								List<String> prebuiltLanternsList = new ArrayList<String>();
-								prebuiltLanternsList.addAll(prebuiltLanternsList());
-								sender.sendMessage(ChatColor.YELLOW + "========== Prebuild Lanterns ==========");
-								String listToShow = "";
-								for(int i=0; i < prebuiltLanternsList.size(); i++) {
-									listToShow += ChatColor.WHITE.toString() + prebuiltLanternsList.get(i).replaceAll(".gllantern", "");
-									if(i < (prebuiltLanternsList.size() - 1)) {
-										listToShow += ChatColor.YELLOW.toString() + ", ";
-									}
-								}
-								sender.sendMessage(listToShow);
-								return true;
-							}
-						}
-					} else {
-						sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
-						return true;
-					}
-				} else if(args[0].equalsIgnoreCase("info")) {
-					
-					if(!(sender instanceof Player)) {
-						sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You could only use this command in-game");
-						return true;
-					}
-					if(canUseGLInfo((Player) sender)) {
-						if(isGLEnabled((Player) sender)) {
-							sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.GREEN + "Enabled");
-						} else {
-							sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.DARK_RED + "Disabled");
-						}
-						if(isGLPrebuildEnabled((Player) sender)) {
-							sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Prebuilt Glowstone Lanterns " + ChatColor.GREEN + "Enabled");
-						} else {
-							sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Prebuilt Glowstone Lanterns " + ChatColor.DARK_RED + "Disabled");
-						}
-						return true;
-					} else {
-						sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
-						return true;
-					}
+    // Add new lantern to lantern list
+    public Lantern addLanternToList(World world, Block block,
+                                    int lanternDayType, byte lanternDayData,
+                                    int lanternNightType, byte lanternNightData,
+                                    int lanternRainType, byte lanternRainData) {
 
-				} else if(args[0].equalsIgnoreCase("save")) {
-					if(canUseGLSave((Player) sender)) {
-						
-						sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Saving lanterns...");
-						boolean result = saveLanterns();
-						if(result) {
-							sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.GREEN + String.valueOf(countLanterns()) + " Lanterns succesfully saved!");
-						} else {
-							sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "Error while saving lanterns!");
-						}
-						return true;
-					} else {
-						sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
-						return true;
-					}
+        Lantern newLantern = new Lantern(world.getName(),
+                block.getX(), block.getY(), block.getZ(),
+                LanternState.UNKNOWN,
+                lanternDayType, lanternDayData,
+                lanternNightType, lanternNightData,
+                lanternRainType, lanternRainData);
 
-				} else if(args[0].equalsIgnoreCase("reload")) {
-					if(canUseGLReload((Player) sender)) {
-						boolean result = loadLanterns();
-						if(result) {
-							sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.GREEN + String.valueOf(countLanterns()) + " Lanterns succesfully reloaded!");
-						} else {
-							sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "Error while reloading lanterns!");
-						}
-						return true;
-					} else {
-						sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
-						return true;
-					}
-				
-				} else if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("h") || args[0].equalsIgnoreCase("?")) {
-					// Show the help
-					sender.sendMessage(ChatColor.YELLOW + "========== Glowstone Lanterns Help ==========");
-					sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns <help/h/?> " + ChatColor.WHITE + ": View help");
-					sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns " + ChatColor.WHITE + ": Enable build mode");
-					sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns l [name] " + ChatColor.WHITE + ": Enable prebuild lantern mode");
-					sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns list lanterns " + ChatColor.WHITE + ": List prebuild lanterns");
-					sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns info " + ChatColor.WHITE + ": Check current status");
-					sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns save " + ChatColor.WHITE + ": Save the lanterns");
-					sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns reload " + ChatColor.WHITE + ": Reload the lanterns");
-					sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns <version/ver/v> " + ChatColor.WHITE + ": Check plugin version");
-					return true;
-					
-				} else if(args[0].equalsIgnoreCase("version") || args[0].equalsIgnoreCase("ver") || args[0].equalsIgnoreCase("v")) {
-					PluginDescriptionFile pdfFile = getDescription();
-					sender.sendMessage(ChatColor.YELLOW + "This server is running Glowstone Lanterns v" + pdfFile.getVersion());
-					sender.sendMessage(ChatColor.YELLOW + "Glowstone Lanterns is made by Tim Visee - timvisee.com");
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	// Get the list of the lanterns
-	public List<String> prebuiltLanternsList() {
-		File folder = prebuiltLanternsFolder;
-		File[] listOfFiles = folder.listFiles();
-		List<String> prebuiltLanternsList = new ArrayList<String>();
+        GLLanterns.add(newLantern);
 
-		assert listOfFiles != null;
+        saveLanterns(true);
 
-		for(File listOfFile : listOfFiles) {
-			if (listOfFile.isFile()) {
-				if (listOfFile.getPath().endsWith(".gllantern")) {
-					prebuiltLanternsList.add(listOfFile.getName());
-				}
-			}
+        return newLantern;
+    }
+
+    // Check if a block is a lantern
+    public boolean isLantern(World world, Block block) {
+        for (Lantern item : GLLanterns) {
+            if (item.getWorld().equals(world.getName())) {
+                if (item.getBlock(getServer()).equals(block)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Remove lantern from list
+    public void removeLanternFromList(World world, Block block) {
+        List<Lantern> remove = new ArrayList<Lantern>();
+        for (Lantern item : GLLanterns) {
+            if (item.getWorld().equals(world.getName())) {
+                if (item.getBlock(getServer()).equals(block)) {
+                    remove.add(item);
+                }
+            }
+        }
+
+        for (Lantern item : remove) {
+            GLLanterns.remove(item);
+        }
+
+        saveLanterns(true);
+    }
+
+    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+
+        if (commandLabel.equalsIgnoreCase("glowstonelantern") || commandLabel.equalsIgnoreCase("glowstonelanterns") || commandLabel.equalsIgnoreCase("gl")) {
+
+            if (args.length == 0) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You could only use this command in-game");
+                    return true;
+                }
+
+                if (isGLEnabled((Player) sender)) {
+                    togglePlaceFinishedLanterns((Player) sender, "", true, false);
+                }
+                toggleGL((Player) sender);
+                return true;
+
+            } else {
+                if (args[0].equalsIgnoreCase("lantern") || args[0].equalsIgnoreCase("l")) {
+                    if (!(sender instanceof Player)) {
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You could only use this command in-game");
+                        return true;
+                    }
+                    if (args.length == 2) {
+                        if (args[1].equalsIgnoreCase("")) {
+                            togglePlaceFinishedLanterns((Player) sender, "", true, true);
+                            return true;
+                        } else {
+                            if (!isGLEnabled((Player) sender)) {
+                                toggleGL((Player) sender);
+                            }
+                            togglePlaceFinishedLanterns((Player) sender, args[1], false, true);
+                            return true;
+                        }
+                    } else {
+                        togglePlaceFinishedLanterns((Player) sender, "", true, true);
+                        return true;
+                    }
+
+                } else if (args[0].equalsIgnoreCase("list")) {
+                    if (canUseGLList((Player) sender)) {
+                        if (args.length == 2) {
+                            if (args[1].equalsIgnoreCase("l") || args[1].equalsIgnoreCase("lantern") || args[1].equalsIgnoreCase("lanterns")) {
+                                List<String> prebuiltLanternsList = new ArrayList<String>();
+                                prebuiltLanternsList.addAll(prebuiltLanternsList());
+                                sender.sendMessage(ChatColor.YELLOW + "========== Prebuild Lanterns ==========");
+                                String listToShow = "";
+                                for (int i = 0; i < prebuiltLanternsList.size(); i++) {
+                                    listToShow += ChatColor.WHITE.toString() + prebuiltLanternsList.get(i).replaceAll(".gllantern", "");
+                                    if (i < (prebuiltLanternsList.size() - 1)) {
+                                        listToShow += ChatColor.YELLOW.toString() + ", ";
+                                    }
+                                }
+                                sender.sendMessage(listToShow);
+                                return true;
+                            }
+                        }
+                    } else {
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
+                        return true;
+                    }
+                } else if (args[0].equalsIgnoreCase("info")) {
+
+                    if (!(sender instanceof Player)) {
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You could only use this command in-game");
+                        return true;
+                    }
+                    if (canUseGLInfo((Player) sender)) {
+                        if (isGLEnabled((Player) sender)) {
+                            sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.GREEN + "Enabled");
+                        } else {
+                            sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.DARK_RED + "Disabled");
+                        }
+                        if (isGLPrebuildEnabled((Player) sender)) {
+                            sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Prebuilt Glowstone Lanterns " + ChatColor.GREEN + "Enabled");
+                        } else {
+                            sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Prebuilt Glowstone Lanterns " + ChatColor.DARK_RED + "Disabled");
+                        }
+                        return true;
+                    } else {
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
+                        return true;
+                    }
+
+                } else if (args[0].equalsIgnoreCase("save")) {
+                    if (canUseGLSave((Player) sender)) {
+
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Saving lanterns...");
+                        boolean result = saveLanterns();
+                        if (result) {
+                            sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.GREEN + String.valueOf(countLanterns()) + " Lanterns succesfully saved!");
+                        } else {
+                            sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "Error while saving lanterns!");
+                        }
+                        return true;
+                    } else {
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
+                        return true;
+                    }
+
+                } else if (args[0].equalsIgnoreCase("reload")) {
+                    if (canUseGLReload((Player) sender)) {
+                        boolean result = loadLanterns();
+                        if (result) {
+                            sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.GREEN + String.valueOf(countLanterns()) + " Lanterns succesfully reloaded!");
+                        } else {
+                            sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "Error while reloading lanterns!");
+                        }
+                        return true;
+                    } else {
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
+                        return true;
+                    }
+
+                } else if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("h") || args[0].equalsIgnoreCase("?")) {
+                    // Show the help
+                    sender.sendMessage(ChatColor.YELLOW + "========== Glowstone Lanterns Help ==========");
+                    sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns <help/h/?> " + ChatColor.WHITE + ": View help");
+                    sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns " + ChatColor.WHITE + ": Enable build mode");
+                    sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns l [name] " + ChatColor.WHITE + ": Enable prebuild lantern mode");
+                    sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns list lanterns " + ChatColor.WHITE + ": List prebuild lanterns");
+                    sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns info " + ChatColor.WHITE + ": Check current status");
+                    sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns save " + ChatColor.WHITE + ": Save the lanterns");
+                    sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns reload " + ChatColor.WHITE + ": Reload the lanterns");
+                    sender.sendMessage(ChatColor.GOLD + "/glowstonelanterns <version/ver/v> " + ChatColor.WHITE + ": Check plugin version");
+                    return true;
+
+                } else if (args[0].equalsIgnoreCase("version") || args[0].equalsIgnoreCase("ver") || args[0].equalsIgnoreCase("v")) {
+                    PluginDescriptionFile pdfFile = getDescription();
+                    sender.sendMessage(ChatColor.YELLOW + "This server is running Glowstone Lanterns v" + pdfFile.getVersion());
+                    sender.sendMessage(ChatColor.YELLOW + "Glowstone Lanterns is made by Tim Visee - timvisee.com");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Get the list of the lanterns
+    public List<String> prebuiltLanternsList() {
+        File folder = prebuiltLanternsFolder;
+        File[] listOfFiles = folder.listFiles();
+        List<String> prebuiltLanternsList = new ArrayList<String>();
+
+        assert listOfFiles != null;
+
+        for (File listOfFile : listOfFiles) {
+            if (listOfFile.isFile()) {
+                if (listOfFile.getPath().endsWith(".gllantern")) {
+                    prebuiltLanternsList.add(listOfFile.getName());
+                }
+            }
 //			else if (listOfFile.isDirectory()) {
 //				// The item is a directory, do nothing
 //			} else {
 //				// File/directory is something else, do nothing
 //			}
-		}
-	    
-	    return prebuiltLanternsList;
-	}
+        }
 
-	// Toggle the GL command (place mode command)
-	public void toggleGL(Player player) {
-		if(isGLEnabled(player)) {
-			this.GLUsers.remove(player);
-			player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.DARK_RED + "Disabled");
-		} else {
-			if(canUseGL(player)) {
-				this.GLUsers.put(player, null);
-				player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.GREEN + "Enabled");
-			} else {
-				player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
-			}
-		}
-	}
-	
-	// Toggle the 'Place finished lanterns' command
-	public void togglePlaceFinishedLanterns(Player player, String lanternName, boolean disablePlaceLanterns, boolean showMessage) {
-		if(!disablePlaceLanterns) {
-			File lanternFile = new File(prebuiltLanternsFolder + "/" + lanternName + ".gllantern");
-			
-			if(lanternFile.exists()) {
-				if(GLUsersPrebuiltLanterns.containsKey(player)) {
-					GLUsersPrebuiltLanterns.remove(player);
-				}
-				GLUsersPrebuiltLanterns.put(player, lanternName);
-				player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Place prebuilt lantern " + ChatColor.WHITE + lanternName + " " + ChatColor.GREEN + "Enabled");
-			} else {
-				player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "Unknown lantern, try " + ChatColor.WHITE + "/gl list lantern");
-			}
-		} else {
-			if(GLUsersPrebuiltLanterns.containsKey(player)) {
-				GLUsersPrebuiltLanterns.remove(player);
-			}
-			if(showMessage) {
-				player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Place prebuilt lanterns " + ChatColor.DARK_RED + "Disabled");
-			}
-		}
-	}
+        return prebuiltLanternsList;
+    }
 
-	/*
-	 * Check if a command is enabled
-	 */
-	public boolean isGLEnabled(Player player) {
-		return this.GLUsers.containsKey(player);
-	}
-	
-	public boolean isGLPrebuildEnabled(Player player) {
-		return this.GLUsersPrebuiltLanterns.containsKey(player);
-	}
+    // Toggle the GL command (place mode command)
+    public void toggleGL(Player player) {
+        if (isGLEnabled(player)) {
+            this.GLUsers.remove(player);
+            player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.DARK_RED + "Disabled");
+        } else {
+            if (canUseGL(player)) {
+                this.GLUsers.put(player, null);
+                player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.GREEN + "Enabled");
+            } else {
+                player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
+            }
+        }
+    }
 
-	// Check if it's day or night in a world
-	public boolean isDay(World world) {
+    // Toggle the 'Place finished lanterns' command
+    public void togglePlaceFinishedLanterns(Player player, String lanternName, boolean disablePlaceLanterns, boolean showMessage) {
+        if (!disablePlaceLanterns) {
+            File lanternFile = new File(prebuiltLanternsFolder + "/" + lanternName + ".gllantern");
+
+            if (lanternFile.exists()) {
+                if (GLUsersPrebuiltLanterns.containsKey(player)) {
+                    GLUsersPrebuiltLanterns.remove(player);
+                }
+                GLUsersPrebuiltLanterns.put(player, lanternName);
+                player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Place prebuilt lantern " + ChatColor.WHITE + lanternName + " " + ChatColor.GREEN + "Enabled");
+            } else {
+                player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "Unknown lantern, try " + ChatColor.WHITE + "/gl list lantern");
+            }
+        } else {
+            if (GLUsersPrebuiltLanterns.containsKey(player)) {
+                GLUsersPrebuiltLanterns.remove(player);
+            }
+            if (showMessage) {
+                player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Place prebuilt lanterns " + ChatColor.DARK_RED + "Disabled");
+            }
+        }
+    }
+
+    /*
+     * Check if a command is enabled
+     */
+    public boolean isGLEnabled(Player player) {
+        return this.GLUsers.containsKey(player);
+    }
+
+    public boolean isGLPrebuildEnabled(Player player) {
+        return this.GLUsersPrebuiltLanterns.containsKey(player);
+    }
+
+    // Check if it's day or night in a world
+    public boolean isDay(World world) {
         long time = world.getTime();
-		return time < getConfig().getInt("NightStart", 12400) || time > getConfig().getInt("DayStart", 23700);
-	}
-	
-	// Check if it's raining (storm) in a world
-	public boolean isRaining(World world) {
-		return world.hasStorm();
-	}
-	
-	/**
-	 * Check whether a player can use Glowstone Lanterns
-	 * @param p Player 
-	 * @return True if the player has permission
-	 */
-	public boolean canUseGL(Player p) {
-	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.gl", p.isOp());
-	}
-	
-	/**
-	 * Check whether a player can destroy Glowstone Lanterns
-	 * @param p Player
-	 * @return True if the player has permission
-	 */
-	public boolean canDestroyLanterns(Player p) {
-	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.destroyLantern", p.isOp());
-	}
-	
-	/**
-	 * Check whether a player can use the info command
-	 * @param p Player
-	 * @return True if the player has permission
-	 */
-	public boolean canUseGLInfo(Player p) {
-	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.info", p.isOp());
-	}
-	
-	/**
-	 * Check whether a player can use the list command
-	 * @param p Player
-	 * @return True if the player has permission
-	 */
-	public boolean canUseGLList(Player p) {
-	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.list", p.isOp());
-	}
+        return time < getConfig().getInt("NightStart", 12400) || time > getConfig().getInt("DayStart", 23700);
+    }
 
-	/**
-	 * Check whether a player can use the save command
-	 * @param p Player
-	 * @return True if the player has permission
-	 */
-	public boolean canUseGLSave(Player p) {
-	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.save", p.isOp());
-	}
+    // Check if it's raining (storm) in a world
+    public boolean isRaining(World world) {
+        return world.hasStorm();
+    }
 
-	/**
-	 * Check whether a player can use the reload command
-	 * @param p Player
-	 * @return True if the player has permission
-	 */
-	public boolean canUseGLReload(Player p) {
-	    return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.reload", p.isOp());
-	}
+    /**
+     * Check whether a player can use Glowstone Lanterns
+     *
+     * @param p Player
+     * @return True if the player has permission
+     */
+    public boolean canUseGL(Player p) {
+        return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.gl", p.isOp());
+    }
+
+    /**
+     * Check whether a player can destroy Glowstone Lanterns
+     *
+     * @param p Player
+     * @return True if the player has permission
+     */
+    public boolean canDestroyLanterns(Player p) {
+        return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.destroyLantern", p.isOp());
+    }
+
+    /**
+     * Check whether a player can use the info command
+     *
+     * @param p Player
+     * @return True if the player has permission
+     */
+    public boolean canUseGLInfo(Player p) {
+        return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.info", p.isOp());
+    }
+
+    /**
+     * Check whether a player can use the list command
+     *
+     * @param p Player
+     * @return True if the player has permission
+     */
+    public boolean canUseGLList(Player p) {
+        return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.list", p.isOp());
+    }
+
+    /**
+     * Check whether a player can use the save command
+     *
+     * @param p Player
+     * @return True if the player has permission
+     */
+    public boolean canUseGLSave(Player p) {
+        return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.save", p.isOp());
+    }
+
+    /**
+     * Check whether a player can use the reload command
+     *
+     * @param p Player
+     * @return True if the player has permission
+     */
+    public boolean canUseGLReload(Player p) {
+        return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.reload", p.isOp());
+    }
 }

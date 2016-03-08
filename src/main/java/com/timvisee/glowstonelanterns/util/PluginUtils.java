@@ -1,6 +1,6 @@
 package com.timvisee.glowstonelanterns.util;
 
-import com.timvisee.dungeonmaze.DungeonMaze;
+import com.timvisee.glowstonelanterns.GlowstoneLanterns;
 import org.bukkit.Bukkit;
 
 import java.io.File;
@@ -37,7 +37,7 @@ public class PluginUtils {
             fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
 
         // Dynamically get the file of the plugin
-        final File pluginFile = new File(DungeonMaze.instance.getDataFolder().getParentFile(), fileName);
+        final File pluginFile = new File(GlowstoneLanterns.instance.getDataFolder().getParentFile(), fileName);
 
         // Return the file if it exists, null otherwise
         return pluginFile.isFile() ? pluginFile : null;
@@ -50,6 +50,6 @@ public class PluginUtils {
      */
     public static File getPluginDataDirectory() {
         // TODO: Validate the returned path
-        return DungeonMaze.instance.getDataFolder();
+        return GlowstoneLanterns.instance.getDataFolder();
     }
 }

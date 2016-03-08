@@ -1,9 +1,9 @@
 package com.timvisee.glowstonelanterns.command.help;
 
-import com.timvisee.dungeonmaze.command.CommandArgumentDescription;
-import com.timvisee.dungeonmaze.command.CommandDescription;
-import com.timvisee.dungeonmaze.command.CommandParts;
-import com.timvisee.dungeonmaze.util.ListUtils;
+import com.timvisee.glowstonelanterns.command.CommandArgumentDescription;
+import com.timvisee.glowstonelanterns.command.CommandDescription;
+import com.timvisee.glowstonelanterns.command.CommandParts;
+import com.timvisee.glowstonelanterns.util.ListUtils;
 import org.bukkit.ChatColor;
 
 public class HelpSyntaxHelper {

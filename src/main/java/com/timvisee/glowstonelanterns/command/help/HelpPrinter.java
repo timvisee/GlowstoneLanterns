@@ -1,11 +1,11 @@
 package com.timvisee.glowstonelanterns.command.help;
 
-import com.timvisee.dungeonmaze.Core;
-import com.timvisee.dungeonmaze.command.CommandArgumentDescription;
-import com.timvisee.dungeonmaze.command.CommandDescription;
-import com.timvisee.dungeonmaze.command.CommandParts;
-import com.timvisee.dungeonmaze.command.CommandPermissions;
-import com.timvisee.dungeonmaze.util.StringUtils;
+import com.timvisee.glowstonelanterns.GlowstoneLanterns;
+import com.timvisee.glowstonelanterns.command.CommandArgumentDescription;
+import com.timvisee.glowstonelanterns.command.CommandDescription;
+import com.timvisee.glowstonelanterns.command.CommandParts;
+import com.timvisee.glowstonelanterns.command.CommandPermissions;
+import com.timvisee.glowstonelanterns.util.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -103,7 +103,7 @@ public class HelpPrinter {
         for(String node : permissions.getPermissionNodes()) {
             boolean nodePermission = true;
             if(sender instanceof Player)
-                nodePermission = Core.getPermissionsManager().hasPermission((Player) sender, node, false);
+                nodePermission = GlowstoneLanterns.instance.getPermissionsManager().hasPermission((Player) sender, node, false);
             final String nodePermsString = ChatColor.GRAY + (nodePermission ? ChatColor.ITALIC + " (Permission!)" : ChatColor.ITALIC + " (No Permission!)");
             sender.sendMessage(" " + ChatColor.YELLOW + ChatColor.ITALIC + node + nodePermsString);
         }

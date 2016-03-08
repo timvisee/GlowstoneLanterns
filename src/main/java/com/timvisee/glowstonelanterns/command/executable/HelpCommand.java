@@ -1,8 +1,8 @@
 package com.timvisee.glowstonelanterns.command.executable;
 
-import com.timvisee.dungeonmaze.command.CommandParts;
-import com.timvisee.dungeonmaze.command.ExecutableCommand;
-import com.timvisee.dungeonmaze.command.help.HelpProvider;
+import com.timvisee.glowstonelanterns.command.CommandParts;
+import com.timvisee.glowstonelanterns.command.ExecutableCommand;
+import com.timvisee.glowstonelanterns.command.help.HelpProvider;
 import org.bukkit.command.CommandSender;
 
 public class HelpCommand extends ExecutableCommand {

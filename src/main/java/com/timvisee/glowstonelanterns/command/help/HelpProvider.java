@@ -1,8 +1,7 @@
 package com.timvisee.glowstonelanterns.command.help;
 
-import com.timvisee.dungeonmaze.Core;
-import com.timvisee.dungeonmaze.DungeonMaze;
-import com.timvisee.dungeonmaze.command.*;
+import com.timvisee.glowstonelanterns.GlowstoneLanterns;
+import com.timvisee.glowstonelanterns.command.*;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -96,7 +95,7 @@ public class HelpProvider {
         }
 
         // Print the help header
-        sender.sendMessage(ChatColor.GOLD + "==========[ " + DungeonMaze.getPluginName().toUpperCase() + " HELP ]==========");
+        sender.sendMessage(ChatColor.GOLD + "==========[ " + GlowstoneLanterns.getPluginName().toUpperCase() + " HELP ]==========");
 
         // Print the command help information
         if(showCommand)

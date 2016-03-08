@@ -1,6 +1,6 @@
 package com.timvisee.glowstonelanterns.util;
 
-import com.timvisee.dungeonmaze.server.ServerType;
+import com.timvisee.glowstonelanterns.server.ServerType;
 import org.bukkit.Bukkit;
 
 public class MinecraftUtils {
@@ -39,10 +39,9 @@ public class MinecraftUtils {
         // Get the raw version
         final String rawVersion = Bukkit.getVersion();
 
-        // TODO: Enable this code, to properly recognise Bukkit servers!
-        /*// Check whether this is a CraftBukkit or Bukkit server
+        // Check whether this is a CraftBukkit or Bukkit server
         if(rawVersion.toLowerCase().contains("bukkit"))
-            return ServerType.BUKKIT;*/
+            return ServerType.BUKKIT;
 
         // Check whether this is a PaperSpigot server
         if(rawVersion.toLowerCase().contains("paperspigot"))

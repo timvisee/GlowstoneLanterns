@@ -19,8 +19,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.timvisee.glowstonelanterns.manager.GLPermissionsManager;
-
 public class GlowstoneLanterns extends JavaPlugin {
 
     /**

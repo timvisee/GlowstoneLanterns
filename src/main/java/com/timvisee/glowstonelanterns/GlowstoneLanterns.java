@@ -33,12 +33,12 @@ public class GlowstoneLanterns extends JavaPlugin {
     /**
      * The version name of the plugin.
      */
-    private static final String PLUGIN_VERSION_NAME = "0.7";
+    private static final String PLUGIN_VERSION_NAME = "0.8";
 
     /**
      * The version code of the plugin.
      */
-    private static final int PLUGIN_VERSION_CODE = 7;
+    private static final int PLUGIN_VERSION_CODE = 8;
 
     /**
      * The plugin instance.

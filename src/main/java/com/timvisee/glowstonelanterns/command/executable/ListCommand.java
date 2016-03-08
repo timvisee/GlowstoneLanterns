@@ -25,8 +25,8 @@ public class ListCommand extends ExecutableCommand {
         List<String> prebuiltLanternsList = GlowstoneLanterns.instance.prebuiltLanternsList();
 
         // Print the header
-        sender.sendMessage(ChatColor.GOLD + "==========[ " + GlowstoneLanterns.getPluginName().toUpperCase() + " PREBUILT LANTERNS ]==========");
-        sender.sendMessage(ChatColor.GOLD + " Prebuilt lanterns:");
+        sender.sendMessage(ChatColor.GOLD + "==========[ PREBUILT LANTERNS ]==========");
+        sender.sendMessage(ChatColor.GOLD + "Prebuilt lanterns:");
 
         // Show the prebuilt lanterns
         for(String aPrebuiltLanternsList : prebuiltLanternsList)

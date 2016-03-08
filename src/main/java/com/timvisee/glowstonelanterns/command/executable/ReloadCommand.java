@@ -26,12 +26,16 @@ public class ReloadCommand extends ExecutableCommand {
         // Show a status message
         sender.sendMessage(ChatColor.YELLOW + "Reloading Glowstone Lanterns...");
 
-
+        // Reload the configuration
         GlowstoneLanterns.instance.reloadConfig();
-        sender.sendMessage(ChatColor.YELLOW + "Lanterns have been reloaded!");
+        sender.sendMessage(ChatColor.YELLOW + "Loaded the configuration.");
+
+        // Reload lanterns
+        GlowstoneLanterns.instance.loadLanterns();
+        sender.sendMessage(ChatColor.YELLOW + "Loaded " + ChatColor.WHITE + GlowstoneLanterns.instance.glLanterns.size() + ChatColor.YELLOW + " lanterns.");
 
         // Dungeon Maze reloaded, show a status message
-        sender.sendMessage(ChatColor.GREEN + "Glowstone Lanterns has been reloaded successfully, took " + p.getTimeFormatted() + "!");
+        sender.sendMessage(ChatColor.GREEN + "Glowstone Lanterns has been reloaded, took " + p.getTimeFormatted() + "!");
         return true;
     }
 }

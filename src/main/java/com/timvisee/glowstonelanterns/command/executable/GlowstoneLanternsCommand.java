@@ -1,12 +1,12 @@
 package com.timvisee.glowstonelanterns.command.executable;
 
-import com.timvisee.dungeonmaze.DungeonMaze;
-import com.timvisee.dungeonmaze.command.CommandParts;
-import com.timvisee.dungeonmaze.command.ExecutableCommand;
+import com.timvisee.glowstonelanterns.GlowstoneLanterns;
+import com.timvisee.glowstonelanterns.command.CommandParts;
+import com.timvisee.glowstonelanterns.command.ExecutableCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-public class DungeonMazeCommand extends ExecutableCommand {
+public class GlowstoneLanternsCommand extends ExecutableCommand {
 
     /**
      * Execute the command.
@@ -20,7 +20,7 @@ public class DungeonMazeCommand extends ExecutableCommand {
     @Override
     public boolean executeCommand(CommandSender sender, CommandParts commandReference, CommandParts commandArguments) {
         // Show some version info
-        sender.sendMessage(ChatColor.GREEN + "This server is running " + DungeonMaze.getPluginName() + " v" + DungeonMaze.getVersionName() + "! " + ChatColor.RED + "<3");
+        sender.sendMessage(ChatColor.GREEN + "This server is running " + GlowstoneLanterns.getVersionComplete(true) + "! " + ChatColor.RED + "<3");
         sender.sendMessage(ChatColor.YELLOW + "Use the command " + ChatColor.GOLD + "/" + commandReference.get(0) + " help" + ChatColor.YELLOW + " to view help.");
         sender.sendMessage(ChatColor.YELLOW + "Use the command " + ChatColor.GOLD + "/" + commandReference.get(0) + " about" + ChatColor.YELLOW + " to view about.");
         return true;

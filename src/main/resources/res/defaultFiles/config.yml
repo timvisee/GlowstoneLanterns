@@ -57,3 +57,4 @@ ShowTimeChangedMessagesInConsole: false
 
 # File version, do not change!
 version: '0.7'
+versionCode: 7

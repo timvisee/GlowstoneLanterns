@@ -1,18 +1,14 @@
 package com.timvisee.glowstonelanterns.command.executable;
 
-import com.timvisee.dungeonmaze.Core;
-import com.timvisee.dungeonmaze.DungeonMaze;
-import com.timvisee.dungeonmaze.command.CommandParts;
-import com.timvisee.dungeonmaze.command.ExecutableCommand;
-import com.timvisee.dungeonmaze.permission.PermissionsManager;
-import com.timvisee.dungeonmaze.util.MinecraftUtils;
-import com.timvisee.dungeonmaze.util.SystemUtils;
-import com.timvisee.dungeonmaze.world.WorldManager;
-import com.timvisee.dungeonmaze.world.dungeon.chunk.grid.DungeonChunkGridManager;
+import com.timvisee.glowstonelanterns.GlowstoneLanterns;
+import com.timvisee.glowstonelanterns.command.CommandParts;
+import com.timvisee.glowstonelanterns.command.ExecutableCommand;
+import com.timvisee.glowstonelanterns.permission.PermissionsManager;
+import com.timvisee.glowstonelanterns.util.MinecraftUtils;
+import com.timvisee.glowstonelanterns.util.SystemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -33,62 +29,31 @@ public class StatusCommand extends ExecutableCommand {
     @Override
     public boolean executeCommand(CommandSender sender, CommandParts commandReference, CommandParts commandArguments) {
         // Print the status info header
-        sender.sendMessage(ChatColor.GOLD + "==========[ " + DungeonMaze.getPluginName().toUpperCase() + " STATUS ]==========");
+        sender.sendMessage(ChatColor.GOLD + "==========[ " + GlowstoneLanterns.getPluginName().toUpperCase() + " STATUS ]==========");
 
-        // Get the world manager
-        WorldManager worldManager = Core.getWorldManager();
-
-        // Print the number of Dungeon Maze worlds
-        if(worldManager != null)
-            sender.sendMessage(ChatColor.GOLD + DungeonMaze.getPluginName() + " worlds: " + ChatColor.WHITE + worldManager.getDungeonMazeWorlds().size());
-        else
-            sender.sendMessage(ChatColor.GOLD + DungeonMaze.getPluginName() + " worlds: " + ChatColor.DARK_RED + ChatColor.ITALIC + "Unknown!");
-
-        // Print the Dungeon Maze player count
-        int playerCount = Bukkit.getOnlinePlayers().size();
-        int dungeonMazePlayerCount = 0;
-        if(worldManager != null) {
-            for(Player player : Bukkit.getOnlinePlayers())
-                if(worldManager.isDungeonMazeWorld(player.getWorld().getName()))
-                    dungeonMazePlayerCount++;
-
-            sender.sendMessage(ChatColor.GOLD + DungeonMaze.getPluginName() + " players: " + ChatColor.WHITE + dungeonMazePlayerCount + ChatColor.GRAY + " / " + playerCount);
-
-        } else
-            sender.sendMessage(ChatColor.GOLD + DungeonMaze.getPluginName() + " players: " + ChatColor.DARK_RED + ChatColor.ITALIC + "Unknown!");
+        // Get the dungeon chunk grid manager
+        sender.sendMessage(ChatColor.GOLD + "Loaded Lanterns: " + ChatColor.WHITE + GlowstoneLanterns.instance.glLanterns.size());
 
         // Get the permissions manager
-        PermissionsManager permissionsManager = Core.getPermissionsManager();
+        PermissionsManager permissionsManager = GlowstoneLanterns.instance.getPermissionsManager();
 
         // Print the permissions manager status
         if(permissionsManager != null) {
             // Get the used permissions system
             PermissionsManager.PermissionsSystemType type = permissionsManager.getUsedPermissionsSystemType();
 
-            if(!type.equals(PermissionsManager.PermissionsSystemType.NONE))
+            if(type != null)
                 sender.sendMessage(ChatColor.GOLD + "Permissions System: " + ChatColor.GREEN + permissionsManager.getUsedPermissionsSystemType().getName());
             else
-                sender.sendMessage(ChatColor.GOLD + "Permissions System: " + ChatColor.GRAY + ChatColor.ITALIC + permissionsManager.getUsedPermissionsSystemType().getName());
+                sender.sendMessage(ChatColor.GOLD + "Permissions System: " + ChatColor.GRAY + ChatColor.ITALIC + "None");
         } else
             sender.sendMessage(ChatColor.GOLD + "Permissions System: " + ChatColor.DARK_RED + ChatColor.ITALIC + "Unknown!");
-
-        // Get the dungeon chunk grid manager
-        DungeonChunkGridManager dungeonChunkGridManager = Core.getDungeonChunkGridManager();
-        if(dungeonChunkGridManager != null) {
-            int loadedChunks = dungeonChunkGridManager.getLoadedChunksCount();
-            int loadedGrids = dungeonChunkGridManager.getLoadedGridsCount();
-            sender.sendMessage(ChatColor.GOLD + "Loaded Dungeon Chunks: " + ChatColor.WHITE + loadedChunks + ChatColor.GRAY + " in " + ChatColor.WHITE + loadedGrids + ChatColor.GRAY + " grid" + (loadedGrids != 1 ? "s" : ""));
-        } else
-            sender.sendMessage(ChatColor.GOLD + "Loaded Dungeon Chunks: " + ChatColor.DARK_RED + ChatColor.ITALIC + "Unknown!");
-
-        // Print the service count
-        sender.sendMessage(ChatColor.GOLD + "Running Services: " + ChatColor.WHITE + Core.instance.getServiceManager().getServiceCount(true) + ChatColor.GRAY + " / " + Core.instance.getServiceManager().getServiceCount());
 
         // Print the plugin runtime
         printPluginRuntime(sender);
 
         // Show the version status
-        sender.sendMessage(ChatColor.GOLD + "Version: " + ChatColor.WHITE + "Dungeon Maze v" + DungeonMaze.getVersionName() + ChatColor.GRAY + " (code: " + DungeonMaze.getVersionCode() + ")");
+        sender.sendMessage(ChatColor.GOLD + "Version: " + ChatColor.WHITE + GlowstoneLanterns.getPluginName() + " v" + GlowstoneLanterns.getVersionName() + ChatColor.GRAY + " (code: " + GlowstoneLanterns.getVersionCode() + ")");
 
         // Print the server status
         printServerStatus(sender);
@@ -105,7 +70,7 @@ public class StatusCommand extends ExecutableCommand {
      */
     public void printPluginRuntime(CommandSender sender) {
         // Get the runtime
-        long runtime = new Date().getTime() - Core.getInitializationTime().getTime();
+        long runtime = new Date().getTime() - GlowstoneLanterns.instance.getInitializationTime().getTime();
 
         // Calculate the timings
         int millis = (int) (runtime % 1000);
@@ -153,9 +118,7 @@ public class StatusCommand extends ExecutableCommand {
         sender.sendMessage(ChatColor.GOLD + "Running Plugins: " + ChatColor.WHITE + Bukkit.getPluginManager().getPlugins().length);
 
         // Get the world manager
-        WorldManager worldManager = Core.getWorldManager();
-        if(worldManager != null)
-            sender.sendMessage(ChatColor.GOLD + "Loaded Worlds: " + ChatColor.WHITE + Bukkit.getWorlds().size() + ChatColor.GRAY + " / " + worldManager.getWorlds().size());
+        sender.sendMessage(ChatColor.GOLD + "Loaded Worlds: " + ChatColor.WHITE + Bukkit.getWorlds().size());
 
         // Print the server time
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

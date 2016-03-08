@@ -1,7 +1,7 @@
 package com.timvisee.glowstonelanterns.command;
 
-import com.timvisee.dungeonmaze.util.ListUtils;
-import com.timvisee.dungeonmaze.util.StringUtils;
+import com.timvisee.glowstonelanterns.util.ListUtils;
+import com.timvisee.glowstonelanterns.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

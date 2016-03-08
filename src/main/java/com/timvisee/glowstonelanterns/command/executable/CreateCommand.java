@@ -5,8 +5,9 @@ import com.timvisee.glowstonelanterns.command.CommandParts;
 import com.timvisee.glowstonelanterns.command.ExecutableCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-public class GlowstoneLanternsCommand extends ExecutableCommand {
+public class CreateCommand extends ExecutableCommand {
 
     /**
      * Execute the command.
@@ -19,11 +20,20 @@ public class GlowstoneLanternsCommand extends ExecutableCommand {
      */
     @Override
     public boolean executeCommand(CommandSender sender, CommandParts commandReference, CommandParts commandArguments) {
-        // Show some version info
-        sender.sendMessage(ChatColor.GREEN + "This server is running " + GlowstoneLanterns.getVersionComplete(true) + "! " + ChatColor.RED + "<3");
-        sender.sendMessage(ChatColor.YELLOW + "Use the command " + ChatColor.GOLD + "/" + commandReference.get(0) + " create" + ChatColor.YELLOW + " to create a lantern.");
-        sender.sendMessage(ChatColor.YELLOW + "Use the command " + ChatColor.GOLD + "/" + commandReference.get(0) + " help" + ChatColor.YELLOW + " to view help.");
-        sender.sendMessage(ChatColor.YELLOW + "Use the command " + ChatColor.GOLD + "/" + commandReference.get(0) + " about" + ChatColor.YELLOW + " to view about.");
+        // Make sure the command is executed by an in-game player
+        if(!(sender instanceof Player)) {
+            sender.sendMessage(ChatColor.DARK_RED + "You need to be in-game to use this command!");
+            return true;
+        }
+
+        // Check whether the creation mode is enabled, toggle the prebuilt lanterns mode if that's the case
+        if(GlowstoneLanterns.instance.isGLEnabled((Player) sender))
+            GlowstoneLanterns.instance.togglePlaceFinishedLanterns((Player) sender, "", true, false);
+
+        // Toggle the creation mode
+        GlowstoneLanterns.instance.toggleGL((Player) sender);
+
+        // Return the result
         return true;
     }
 }

@@ -1,8 +1,8 @@
 package com.timvisee.glowstonelanterns.command.executable;
 
-import com.timvisee.dungeonmaze.DungeonMaze;
-import com.timvisee.dungeonmaze.command.CommandParts;
-import com.timvisee.dungeonmaze.command.ExecutableCommand;
+import com.timvisee.glowstonelanterns.GlowstoneLanterns;
+import com.timvisee.glowstonelanterns.command.CommandParts;
+import com.timvisee.glowstonelanterns.command.ExecutableCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -22,16 +22,13 @@ public class VersionCommand extends ExecutableCommand {
     @Override
     public boolean executeCommand(CommandSender sender, CommandParts commandReference, CommandParts commandArguments) {
         // Show some version info
-        sender.sendMessage(ChatColor.GOLD + "==========[ " + DungeonMaze.getPluginName().toUpperCase() + " ABOUT ]==========");
-        sender.sendMessage(ChatColor.GOLD + "Version: " + ChatColor.WHITE + DungeonMaze.getPluginName() + " v" + DungeonMaze.getVersionName() + ChatColor.GRAY + " (code: " + DungeonMaze.getVersionCode() + ")");
+        sender.sendMessage(ChatColor.GOLD + "==========[ " + GlowstoneLanterns.getPluginName().toUpperCase() + " ABOUT ]==========");
+        sender.sendMessage(ChatColor.GOLD + "Version: " + ChatColor.WHITE + GlowstoneLanterns.getPluginName() + " v" + GlowstoneLanterns.getVersionName() + ChatColor.GRAY + " (code: " + GlowstoneLanterns.getVersionCode() + ")");
         sender.sendMessage(ChatColor.GOLD + "Developers:");
         printDeveloper(sender, "Tim Visee", "timvisee", "Lead Developer");
-        printDeveloper(sender, "Xephi", "xephi", "Code Contributor");
-        printDeveloper(sender, "sgdc3", "sgdc3", "Code Contributor");
-        printDeveloper(sender, "Metonymia", "Metonymia", "Design Contributor");
         sender.sendMessage(ChatColor.GOLD + "Website: " + ChatColor.WHITE + "http://timvisee.com/projects/bukkit/dungeon-maze/");
         sender.sendMessage(ChatColor.GOLD + "License: " + ChatColor.WHITE + "GNU GPL v3.0" + ChatColor.GRAY + ChatColor.ITALIC + " (See LICENSE file)");
-        sender.sendMessage(ChatColor.GOLD + "Copyright: " + ChatColor.WHITE + "Copyright (c) Tim Visee 2015. All rights reserved.");
+        sender.sendMessage(ChatColor.GOLD + "Copyright: " + ChatColor.WHITE + "Copyright (c) Tim Visee 2016. All rights reserved.");
         return true;
     }
 

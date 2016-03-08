@@ -1,7 +1,7 @@
 package com.timvisee.glowstonelanterns.command;
 
-import com.timvisee.dungeonmaze.Core;
-import com.timvisee.dungeonmaze.permission.PermissionsManager;
+import com.timvisee.glowstonelanterns.GlowstoneLanterns;
+import com.timvisee.glowstonelanterns.permission.PermissionsManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -124,7 +124,7 @@ public class CommandPermissions {
         Player player = (Player) sender;
 
         // Get the permissions manager, and make sure it's instance is valid
-        PermissionsManager permissionsManager = Core.getPermissionsManager();
+        PermissionsManager permissionsManager = GlowstoneLanterns.instance.getPermissionsManager();
         if(permissionsManager == null)
             return false;
 

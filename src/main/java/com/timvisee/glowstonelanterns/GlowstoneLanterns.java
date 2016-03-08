@@ -1,12 +1,14 @@
 package com.timvisee.glowstonelanterns;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 import java.io.*;
 import java.util.stream.Collectors;
 
+import com.timvisee.glowstonelanterns.command.CommandHandler;
 import com.timvisee.glowstonelanterns.lantern.Lantern;
 import com.timvisee.glowstonelanterns.lantern.LanternState;
 import com.timvisee.glowstonelanterns.lantern.LanternUpdate;
@@ -46,6 +48,11 @@ public class GlowstoneLanterns extends JavaPlugin {
     public static GlowstoneLanterns instance;
 
     /**
+     * Defines the initialization time of the plugin.
+     * */
+    private Date initTime = new Date();
+
+    /**
      * The logger of the plugin.
      */
     public static final Logger log = Logger.getLogger("Minecraft");
@@ -54,6 +61,11 @@ public class GlowstoneLanterns extends JavaPlugin {
      * Block listener.
      */
     private final BlockListener blockListener = new BlockListener(this);
+
+    /**
+     * Command handler.
+     */
+    public CommandHandler commandHandler;
 
     /**
      * The permissions manager used for Glowstone Lanterns.
@@ -109,6 +121,9 @@ public class GlowstoneLanterns extends JavaPlugin {
      * Called when the plugin is enabled.
      */
     public void onEnable() {
+        // Set the initialization time
+        this.initTime = new Date();
+
         // Make sure the configuration file exists
         try {
             checkConigFilesExist();
@@ -119,6 +134,9 @@ public class GlowstoneLanterns extends JavaPlugin {
         // Setup custom files and folders
         lanternsFile = new File(getDataFolder() + "/" + getConfig().getString("GlowstoneLanternsFile", "Glowstone Lanterns.txt"));
         prebuiltLanternsFolder = new File(getDataFolder() + "/" + getConfig().getString("PrebuiltLanternsFolder", "Prebuilt Lanterns"));
+
+        // Set up the command handler
+        setUpCommandHandler();
 
         // Set up the permissions manager
         setUpPermissionsManager();
@@ -197,6 +215,31 @@ public class GlowstoneLanterns extends JavaPlugin {
      */
     public static String getVersionComplete(boolean name) {
         return (name ? PLUGIN_NAME : "") + " v" + getVersionName() + " (" + getVersionCode() + ")";
+    }
+
+    /**
+     * Get the initialization time of the Core.
+     *
+     * @return Core initialization time.
+     */
+    public Date getInitializationTime() {
+        return this.initTime;
+    }
+
+    /**
+     * Set up the command handler.
+     */
+    public void setUpCommandHandler() {
+        this.commandHandler = new CommandHandler(true);
+    }
+
+    /**
+     * Get the command handler.
+     *
+     * @return The command handler.
+     */
+    public CommandHandler getCommandHandler() {
+        return this.commandHandler;
     }
 
     /**
@@ -631,6 +674,27 @@ public class GlowstoneLanterns extends JavaPlugin {
         }
 
         saveLanterns(true);
+    }
+
+    /**
+     * Handle Bukkit commands.
+     *
+     * @param sender       The command sender (Bukkit).
+     * @param cmd          The command (Bukkit).
+     * @param commandLabel The command label (Bukkit).
+     * @param args         The command arguments (Bukkit).
+     *
+     * @return True if the command was executed, false otherwise.
+     */
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+        // Get the command handler, and make sure it's valid
+        CommandHandler commandHandler = getCommandHandler();
+        if(commandHandler == null)
+            return false;
+
+        // Handle the command, return the result
+        return commandHandler.onCommand(sender, cmd, commandLabel, args);
     }
 
     /**

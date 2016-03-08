@@ -1,6 +1,6 @@
 package com.timvisee.glowstonelanterns.command;
 
-import com.timvisee.dungeonmaze.command.executable.*;
+import com.timvisee.glowstonelanterns.command.executable.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,15 +27,31 @@ public class CommandManager {
      */
     @SuppressWarnings("SpellCheckingInspection")
     public void registerCommands() {
-        // Register the base Dungeon Maze command
-        CommandDescription dungeonMazeCommand = new CommandDescription(
-                new DungeonMazeCommand(),
+        // Register the base Glowstone Lanterns command
+        CommandDescription glowstoneLanternsCommand = new CommandDescription(
+                new GlowstoneLanternsCommand(),
                 new ArrayList<String>() {{
-                    add("dungeonmaze");
-                    add("dm");
+                    add("glowstonelanterns");
+                    add("glowstonelantern");
+                    add("gl");
                 }},
                 "Main command",
-                "The main Dungeon Maze command. The root for all the other commands.", null);
+                "The main Glowstone Lanterns command. The root for all the other commands.", null);
+
+        // Register the create command
+        CommandDescription createCommand = new CommandDescription(
+                new CreateCommand(),
+                new ArrayList<String>() {{
+                    add("create");
+                    add("c");
+                    add("build");
+                    add("make");
+                    add("place");
+                }},
+                "Create Glowstone Lanterns",
+                "Toggle the creation mode to place down glowstone lanterns",
+                glowstoneLanternsCommand);
+        createCommand.setCommandPermissions("glowstonelanterns.command.create", CommandPermissions.DefaultPermission.OP_ONLY);
 
         // Register the help command
         CommandDescription helpCommand = new CommandDescription(
@@ -48,81 +64,10 @@ public class CommandManager {
                     add("?");
                 }},
                 "View help",
-                "View detailed help pages about Dungeon Maze commands.",
-                dungeonMazeCommand);
+                "View detailed help pages about Glowstone Lanterns commands.",
+                glowstoneLanternsCommand);
         helpCommand.addArgument(new CommandArgumentDescription("query", "The command or query to view help for.", true));
         helpCommand.setMaximumArguments(false);
-
-        // Register the create command
-        CommandDescription createWorldCommand = new CommandDescription(
-                new CreateWorldCommand(),
-                new ArrayList<String>() {{
-                    add("createworld");
-                    add("cw");
-                }},
-                "Create world",
-                "Create a new Dungeon Maze world, the name of the world must be unique.",
-                dungeonMazeCommand);
-        createWorldCommand.addArgument(new CommandArgumentDescription("world", "The name of the world to create.", false));
-        createWorldCommand.addArgument(new CommandArgumentDescription("preload", "True or False to preload the world on startup.", true));
-        createWorldCommand.setCommandPermissions("dungeonmaze.command.createworld", CommandPermissions.DefaultPermission.OP_ONLY);
-
-        // Register the teleport command
-        CommandDescription teleportCommand = new CommandDescription(
-                new TeleportCommand(),
-                new ArrayList<String>() {{
-                    add("teleport");
-                    add("tp");
-                    add("warp");
-                    add("goto");
-                    add("move");
-                }},
-                "Teleport to world",
-                "Teleports to any another world, such as a Dungeon Maze world." ,
-                dungeonMazeCommand);
-        teleportCommand.addArgument(new CommandArgumentDescription("world", "The name of the world to teleport to.", false));
-        teleportCommand.setCommandPermissions("dungeonmaze.command.teleport", CommandPermissions.DefaultPermission.OP_ONLY);
-
-        // Register the load world command
-        CommandDescription loadWorldCommand = new CommandDescription(
-                new LoadWorldCommand(),
-                new ArrayList<String>() {{
-                    add("loadworld");
-                    add("load");
-                }},
-                "Load a world",
-                "Load a world if it isn't loaded." ,
-                dungeonMazeCommand);
-        loadWorldCommand.addArgument(new CommandArgumentDescription("world", "The name of the world to load.", false));
-        loadWorldCommand.setCommandPermissions("dungeonmaze.command.loadworld", CommandPermissions.DefaultPermission.OP_ONLY);
-
-        // Register the unload world command
-        CommandDescription unloadWorldCommand = new CommandDescription(
-                new UnloadWorldCommand(),
-                new ArrayList<String>() {{
-                    add("unloadworld");
-                    add("unload");
-                }},
-                "Unload a world",
-                "Unload a loaded world." ,
-                dungeonMazeCommand);
-        unloadWorldCommand.addArgument(new CommandArgumentDescription("world", "The name of the world to unload.", false));
-        unloadWorldCommand.setCommandPermissions("dungeonmaze.command.unloadworld", CommandPermissions.DefaultPermission.OP_ONLY);
-
-        // Register the list world command
-        CommandDescription listWorldCommand = new CommandDescription(
-                new ListWorldCommand(),
-                new ArrayList<String>() {{
-                    add("listworlds");
-                    add("listworld");
-                    add("list");
-                    add("worlds");
-                    add("lw");
-                }},
-                "List Dungeon Mazes",
-                "Lists the available Dungeon Maze worlds and shows some additional information.",
-                dungeonMazeCommand);
-        listWorldCommand.setCommandPermissions("dungeonmaze.command.listworlds", CommandPermissions.DefaultPermission.OP_ONLY);
 
         // Register the reload command
         CommandDescription reloadCommand = new CommandDescription(
@@ -132,10 +77,10 @@ public class CommandManager {
                     add("rld");
                     add("r");
                 }},
-                "Reload Dungeon Maze",
-                "Reload the Dungeon Maze plugin.",
-                dungeonMazeCommand);
-        reloadCommand.setCommandPermissions("dungeonmaze.command.reload", CommandPermissions.DefaultPermission.OP_ONLY);
+                "Reload Glowstone Lanterns",
+                "Reload the Glowstone Lanterns plugin and it's files.",
+                glowstoneLanternsCommand);
+        reloadCommand.setCommandPermissions("glowstonelanterns.command.reload", CommandPermissions.DefaultPermission.OP_ONLY);
         reloadCommand.addArgument(new CommandArgumentDescription("force", "True or False to force reload.", true));
 
         // Register the reload permissions command
@@ -149,51 +94,8 @@ public class CommandManager {
                 }},
                 "Reload permissions",
                 "Reload the permissions system and rehook the installed permissions system.",
-                dungeonMazeCommand);
-        reloadPermissionsCommand.setCommandPermissions("dungeonmaze.command.reloadpermissions", CommandPermissions.DefaultPermission.OP_ONLY);
-
-        // Register the restart command
-        CommandDescription restartCommand = new CommandDescription(
-                new RestartCommand(),
-                new ArrayList<String>() {{
-                    add("restart");
-                    add("rstrt");
-                }},
-                "Restart Dungeon Maze",
-                "Restart the Dungeon Maze plugin.",
-                dungeonMazeCommand);
-        restartCommand.setCommandPermissions("dungeonmaze.command.restart", CommandPermissions.DefaultPermission.OP_ONLY);
-        restartCommand.addArgument(new CommandArgumentDescription("force", "True or False to force restart.", true));
-
-        // Register the check updates command
-        CommandDescription checkUpdatesCommand = new CommandDescription(
-                new CheckUpdatesCommand(),
-                new ArrayList<String>() {{
-                    add("checkupdates");
-                    add("checkupdate");
-                    add("check");
-                    add("updates");
-                    add("update");
-                    add("cu");
-                }},
-                "Check updates",
-                "Check for available updates to install.",
-                dungeonMazeCommand);
-        checkUpdatesCommand.setCommandPermissions("dungeonmaze.command.checkupdates", CommandPermissions.DefaultPermission.OP_ONLY);
-
-        // Register the install update command
-        CommandDescription installUpdateCommand = new CommandDescription(
-                new InstallUpdateCommand(),
-                new ArrayList<String>() {{
-                    add("installupdates");
-                    add("installupdate");
-                    add("install");
-                    add("iu");
-                }},
-                "Install update",
-                "Try to install any availble update.",
-                dungeonMazeCommand);
-        installUpdateCommand.setCommandPermissions("dungeonmaze.command.installupdate", CommandPermissions.DefaultPermission.OP_ONLY);
+                glowstoneLanternsCommand);
+        reloadPermissionsCommand.setCommandPermissions("glowstonelanterns.command.reloadpermissions", CommandPermissions.DefaultPermission.OP_ONLY);
 
         // Register the status command
         CommandDescription statusCommand = new CommandDescription(
@@ -205,23 +107,9 @@ public class CommandManager {
                 }},
                 "Status info",
                 "Show detailed plugin status.",
-                dungeonMazeCommand);
+                glowstoneLanternsCommand);
         statusCommand.setMaximumArguments(false);
-        statusCommand.setCommandPermissions("dungeonmaze.command.status", CommandPermissions.DefaultPermission.OP_ONLY);
-
-        // Register the status command
-        CommandDescription serviceCommand = new CommandDescription(
-                new ServiceCommand(),
-                new ArrayList<String>() {{
-                    add("services");
-                    add("service");
-                    add("serv");
-                }},
-                "Services command",
-                "Show detailed information about all the Dungeon Maze serivces.",
-                dungeonMazeCommand);
-        serviceCommand.setMaximumArguments(false);
-        serviceCommand.setCommandPermissions("dungeonmaze.command.services", CommandPermissions.DefaultPermission.OP_ONLY);
+        statusCommand.setCommandPermissions("glowstonelanterns.command.status", CommandPermissions.DefaultPermission.OP_ONLY);
 
         // Register the version command
         CommandDescription versionCommand = new CommandDescription(
@@ -234,12 +122,12 @@ public class CommandManager {
                     add("info");
                 }},
                 "Version info",
-                "Show detailed information about the installed Dungeon Maze version, and shows the developers, contributors, license and other information.",
-                dungeonMazeCommand);
+                "Show detailed information about the installed Glowstone Lanterns version, and shows the developers, contributors, license and other information.",
+                glowstoneLanternsCommand);
         versionCommand.setMaximumArguments(false);
 
         // Add the base command to the commands array
-        this.commandDescriptions.add(dungeonMazeCommand);
+        this.commandDescriptions.add(glowstoneLanternsCommand);
     }
 
     /**

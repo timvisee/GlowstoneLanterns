@@ -1,6 +1,6 @@
 package com.timvisee.glowstonelanterns.command;
 
-import com.timvisee.dungeonmaze.command.help.HelpProvider;
+import com.timvisee.glowstonelanterns.command.help.HelpProvider;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 

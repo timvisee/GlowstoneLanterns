@@ -11,7 +11,6 @@ import com.timvisee.glowstonelanterns.lantern.Lantern;
 import com.timvisee.glowstonelanterns.lantern.LanternState;
 import com.timvisee.glowstonelanterns.lantern.LanternUpdate;
 import com.timvisee.glowstonelanterns.listener.BlockListener;
-import com.timvisee.glowstonelanterns.listener.PluginListener;
 import com.timvisee.glowstonelanterns.permission.PermissionsManager;
 import org.bukkit.World;
 import org.bukkit.ChatColor;
@@ -55,11 +54,6 @@ public class GlowstoneLanterns extends JavaPlugin {
      * Block listener.
      */
     private final BlockListener blockListener = new BlockListener(this);
-
-    /**
-     * Plugin listener.
-     */
-    private final PluginListener pluginListener = new PluginListener();
 
     /**
      * The permissions manager used for Glowstone Lanterns.
@@ -137,7 +131,6 @@ public class GlowstoneLanterns extends JavaPlugin {
 
         // Register all event listeners
         pm.registerEvents(this.blockListener, this);
-        pm.registerEvents(this.pluginListener, this);
 
         // Create new timer to check world times and change lanterns if needed
         // Run a timer that run's the timer() function every 1 second

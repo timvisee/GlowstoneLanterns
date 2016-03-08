@@ -12,8 +12,6 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -131,27 +129,21 @@ public class GlowstoneLanterns extends JavaPlugin {
         pm.registerEvents(this.blockListener, this);
 
         // Create new timer to check world times and change lanterns if needed
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            public void run() {
-                timer();
-            }
-        }, 20, 20); // Run a timer that run's the timer() function every 1 second
+        // Run a timer that run's the timer() function every 1 second
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, this::timer, 20, 20);
         // TODO: Make the above time configurable
 
         // Lantern delay settings
         this.lanternDelayEnabled = getConfig().getBoolean("changeDelayEnabled", true);
-        if (getConfig().getInt("changeDelayTime", 5) >= 1) {
+        if (getConfig().getInt("changeDelayTime", 5) >= 1)
             this.lanternDelayTime = getConfig().getInt("changeDelayTime", 5);
-        } else {
+        else
             log.info("[Glowstone Lanterns] The 'changeDelayTime' property in the config file has to be 1 or above");
-        }
-        if (this.lanternDelayEnabled) {
-            // Start the scheduled thask to change delayed lanterns
-            getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-                public void run() {
-                    updateNextLantern();
-                }
-            }, this.lanternDelayTime, this.lanternDelayTime); // Run a timer to change delayed lanaterns
+
+        if(this.lanternDelayEnabled) {
+            // Start the scheduled task to change delayed lanterns
+            // Run a timer to change delayed lanterns
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, this::updateNextLantern, this.lanternDelayTime, this.lanternDelayTime);
         }
 
         // The plugin has been enabled, show a status message
@@ -225,11 +217,13 @@ public class GlowstoneLanterns extends JavaPlugin {
     public void checkConigFilesExist() throws Exception {
         if (!getDataFolder().exists()) {
             log.info("[Glowstone Lanterns] Creating default files");
+            //noinspection ResultOfMethodCallIgnored
             getDataFolder().mkdirs();
         }
         File f = new File(getDataFolder(), "Prebuilt Lanterns");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Creating prebuilt lanterns folder");
+            //noinspection ResultOfMethodCallIgnored
             f.mkdirs();
         }
 
@@ -374,9 +368,9 @@ public class GlowstoneLanterns extends JavaPlugin {
             }
 
             File file = lanternsFile;
-            FileInputStream fis = null;
-            BufferedInputStream bis = null;
-            DataInputStream dis = null;
+            FileInputStream fis;
+            BufferedInputStream bis;
+            DataInputStream dis;
 
             try {
                 // Here BufferedInputStream is added for fast reading.
@@ -421,37 +415,40 @@ public class GlowstoneLanterns extends JavaPlugin {
         return GLLanterns.size();
     }
 
+    // TODO: Remove this method?
     // Get config from custom path
-    public FileConfiguration getConfigurationFromPath(String filePath, boolean insideDataFolder) {
-        if (insideDataFolder) {
-            File file = new File(getDataFolder(), filePath);
-            return getConfigFromPath(file);
-        } else {
-            File file = new File(filePath);
-            return getConfigFromPath(file);
-        }
-    }
+//    public FileConfiguration getConfigurationFromPath(String filePath, boolean insideDataFolder) {
+//        if (insideDataFolder) {
+//            File file = new File(getDataFolder(), filePath);
+//            return getConfigFromPath(file);
+//        } else {
+//            File file = new File(filePath);
+//            return getConfigFromPath(file);
+//        }
+//    }
 
-    public FileConfiguration getConfigFromPath(File file) {
-        FileConfiguration c;
+    // TODO: Remove this method?
+//    public FileConfiguration getConfigFromPath(File file) {
+//        FileConfiguration c;
+//
+//        if (file == null) {
+//            return null;
+//        }
+//
+//        c = YamlConfiguration.loadConfiguration(file);
+//
+//        return c;
+//    }
 
-        if (file == null) {
-            return null;
-        }
-
-        c = YamlConfiguration.loadConfiguration(file);
-
-        return c;
-    }
-
-    public String booleanToString(boolean b) {
-        return Boolean.toString(b);
-    }
+    // TODO: Remove this method?
+//    public String booleanToString(boolean b) {
+//        return Boolean.toString(b);
+//    }
 
     // Check if a world is loaded
     public boolean isWorldLoaded(String worldName) {
-        List<World> worlds = new ArrayList<World>();
-        List<String> worldNames = new ArrayList<String>();
+        List<World> worlds = new ArrayList<>();
+        List<String> worldNames = new ArrayList<>();
 
         worlds.addAll(getServer().getWorlds());
         for (World world : worlds) {
@@ -473,20 +470,20 @@ public class GlowstoneLanterns extends JavaPlugin {
         return facing[(int) (yaw / 90)];
     }
 
+    // TODO: Remove this method?
     // Get the facing direction from a player
-    public int getFacingDirectionFromPlayerInt(Player player) {
-        Location loc = player.getLocation();
-        int facing[] = {0, 1, 2, 3};
-        double yaw = ((loc.getYaw() + 22.5) % 360);
-        if (yaw < 0) yaw += 360;
-        return facing[(int) (yaw / 90)];
-    }
+//    public int getFacingDirectionFromPlayerInt(Player player) {
+//        Location loc = player.getLocation();
+//        int facing[] = {0, 1, 2, 3};
+//        double yaw = ((loc.getYaw() + 22.5) % 360);
+//        if (yaw < 0) yaw += 360;
+//        return facing[(int) (yaw / 90)];
+//    }
 
     // Get a list of all worlds
     public List<World> getAllWorlds() {
         return getServer().getWorlds();
     }
-
 
     public void timer() {
         // Check lanterns for every world
@@ -495,7 +492,7 @@ public class GlowstoneLanterns extends JavaPlugin {
             // Check if the current world is loaded
             if (isWorldLoaded(world.getName())) {
                 // Get current day state of the world
-                LanternState currentDayState = LanternState.UNKNOWN;
+                LanternState currentDayState;
                 if (isRaining(world)) {
                     currentDayState = LanternState.RAIN;
                 } else if (isDay(world)) {
@@ -558,16 +555,17 @@ public class GlowstoneLanterns extends JavaPlugin {
         }
     }
 
-    public boolean isInt(String string) {
-        // Check if a string is an integer
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            Integer.parseInt(string);
-        } catch (NumberFormatException ex) {
-            return false;
-        }
-        return true;
-    }
+    // TODO: Remove this method?
+//    public boolean isInt(String string) {
+//        // Check if a string is an integer
+//        try {
+//            //noinspection ResultOfMethodCallIgnored
+//            Integer.parseInt(string);
+//        } catch (NumberFormatException ex) {
+//            return false;
+//        }
+//        return true;
+//    }
 
     // Add new lantern to lantern list
     public Lantern addLanternToList(World world, Block block,
@@ -603,7 +601,8 @@ public class GlowstoneLanterns extends JavaPlugin {
 
     // Remove lantern from list
     public void removeLanternFromList(World world, Block block) {
-        List<Lantern> remove = new ArrayList<Lantern>();
+        List<Lantern> remove;
+        remove = new ArrayList<>();
         for (Lantern item : GLLanterns) {
             if (item.getWorld().equals(world.getName())) {
                 if (item.getBlock(getServer()).equals(block)) {
@@ -661,7 +660,7 @@ public class GlowstoneLanterns extends JavaPlugin {
                     if (canUseGLList((Player) sender)) {
                         if (args.length == 2) {
                             if (args[1].equalsIgnoreCase("l") || args[1].equalsIgnoreCase("lantern") || args[1].equalsIgnoreCase("lanterns")) {
-                                List<String> prebuiltLanternsList = new ArrayList<String>();
+                                List<String> prebuiltLanternsList = new ArrayList<>();
                                 prebuiltLanternsList.addAll(prebuiltLanternsList());
                                 sender.sendMessage(ChatColor.YELLOW + "========== Prebuild Lanterns ==========");
                                 String listToShow = "";
@@ -760,7 +759,7 @@ public class GlowstoneLanterns extends JavaPlugin {
     public List<String> prebuiltLanternsList() {
         File folder = prebuiltLanternsFolder;
         File[] listOfFiles = folder.listFiles();
-        List<String> prebuiltLanternsList = new ArrayList<String>();
+        List<String> prebuiltLanternsList = new ArrayList<>();
 
         assert listOfFiles != null;
 

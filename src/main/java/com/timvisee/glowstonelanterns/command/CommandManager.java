@@ -38,6 +38,22 @@ public class CommandManager {
                 "Main command",
                 "The main Glowstone Lanterns command. The root for all the other commands.", null);
 
+        // Register the help command
+        CommandDescription helpCommand = new CommandDescription(
+                new HelpCommand(),
+                new ArrayList<String>() {{
+                    add("help");
+                    add("hlp");
+                    add("h");
+                    add("sos");
+                    add("?");
+                }},
+                "View help",
+                "View detailed help pages about Glowstone Lanterns commands.",
+                glowstoneLanternsCommand);
+        helpCommand.addArgument(new CommandArgumentDescription("query", "The command or query to view help for.", true));
+        helpCommand.setMaximumArguments(false);
+
         // Register the create command
         CommandDescription createCommand = new CommandDescription(
                 new CreateCommand(),
@@ -82,21 +98,17 @@ public class CommandManager {
                 glowstoneLanternsCommand);
         listCommand.setCommandPermissions("glowstonelanterns.command.list", CommandPermissions.DefaultPermission.OP_ONLY);
 
-        // Register the help command
-        CommandDescription helpCommand = new CommandDescription(
-                new HelpCommand(),
+        // Register the info command
+        CommandDescription infoCommand = new CommandDescription(
+                new InfoCommand(),
                 new ArrayList<String>() {{
-                    add("help");
-                    add("hlp");
-                    add("h");
-                    add("sos");
-                    add("?");
+                    add("info");
+                    add("i");
                 }},
-                "View help",
-                "View detailed help pages about Glowstone Lanterns commands.",
+                "Info about various creation modes",
+                "View info about the creation mode, to see whether it's enabled and whether you have selected a prebuilt lantern.",
                 glowstoneLanternsCommand);
-        helpCommand.addArgument(new CommandArgumentDescription("query", "The command or query to view help for.", true));
-        helpCommand.setMaximumArguments(false);
+        infoCommand.setCommandPermissions("glowstonelanterns.command.info", CommandPermissions.DefaultPermission.ALLOWED);
 
         // Register the reload command
         CommandDescription reloadCommand = new CommandDescription(

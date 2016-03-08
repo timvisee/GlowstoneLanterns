@@ -1,4 +1,4 @@
-name: Glowstone Lanterns
+name: GlowstoneLanterns
 main: com.timvisee.glowstonelanterns.GlowstoneLanterns
 version: ${project.version}
 description: 'Make glowstone lanterns, daytime glass & nighttime glowstone!'

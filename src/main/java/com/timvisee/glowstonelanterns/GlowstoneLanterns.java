@@ -11,6 +11,7 @@ import com.timvisee.glowstonelanterns.lantern.Lantern;
 import com.timvisee.glowstonelanterns.lantern.LanternState;
 import com.timvisee.glowstonelanterns.lantern.LanternUpdate;
 import com.timvisee.glowstonelanterns.listener.BlockListener;
+import com.timvisee.glowstonelanterns.listener.PluginListener;
 import com.timvisee.glowstonelanterns.permission.PermissionsManager;
 import org.bukkit.World;
 import org.bukkit.ChatColor;
@@ -51,9 +52,14 @@ public class GlowstoneLanterns extends JavaPlugin {
     public static final Logger log = Logger.getLogger("Minecraft");
 
     /**
-     * All plugin listeners.
+     * Block listener.
      */
     private final BlockListener blockListener = new BlockListener(this);
+
+    /**
+     * Plugin listener.
+     */
+    private final PluginListener pluginListener = new PluginListener();
 
     /**
      * The permissions manager used for Glowstone Lanterns.
@@ -126,9 +132,12 @@ public class GlowstoneLanterns extends JavaPlugin {
         // Load lanterns
         loadLanterns();
 
-        // Get the plugin manager instances, to register event listeners
+        // Get the plugin manager instances
         PluginManager pm = getServer().getPluginManager();
+
+        // Register all event listeners
         pm.registerEvents(this.blockListener, this);
+        pm.registerEvents(this.pluginListener, this);
 
         // Create new timer to check world times and change lanterns if needed
         // Run a timer that run's the timer() function every 1 second
@@ -140,7 +149,7 @@ public class GlowstoneLanterns extends JavaPlugin {
         if (getConfig().getInt("changeDelayTime", 5) >= 1)
             this.lanternDelayTime = getConfig().getInt("changeDelayTime", 5);
         else
-            log.info("[Glowstone Lanterns] The 'changeDelayTime' property in the config file has to be 1 or above");
+            log.info("[" + getPluginName() + "] The 'changeDelayTime' property in the config file has to be 1 or above");
 
         // Start the scheduled task to change delayed lanterns
         // Run a timer to change delayed lanterns

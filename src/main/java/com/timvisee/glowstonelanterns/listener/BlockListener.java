@@ -1,7 +1,11 @@
-package com.timvisee.glowstonelanterns;
+package com.timvisee.glowstonelanterns.listener;
 
 import java.util.logging.Logger;
 
+import com.timvisee.glowstonelanterns.GlowstoneLanterns;
+import com.timvisee.glowstonelanterns.GlowstoneLanternsPrebuiltLanterns;
+import com.timvisee.glowstonelanterns.Lantern;
+import com.timvisee.glowstonelanterns.LanternState;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -11,12 +15,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-public class GlowstoneLanternsBlockListener implements Listener {
+public class BlockListener implements Listener {
 	public static GlowstoneLanterns plugin;
 
 	public static final Logger log = Logger.getLogger("Minecraft");
 	
-	public GlowstoneLanternsBlockListener(GlowstoneLanterns instance) {
+	public BlockListener(GlowstoneLanterns instance) {
 		plugin = instance;
 		glowstoneLanternsPrebuiltLanterns = new GlowstoneLanternsPrebuiltLanterns(plugin);
 	}

@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import java.io.*;
 import java.util.stream.Collectors;
 
+import com.timvisee.glowstonelanterns.listener.BlockListener;
 import com.timvisee.glowstonelanterns.permission.PermissionsManager;
 import org.bukkit.World;
 import org.bukkit.ChatColor;
@@ -49,7 +50,7 @@ public class GlowstoneLanterns extends JavaPlugin {
     /**
      * All plugin listeners.
      */
-    private final GlowstoneLanternsBlockListener blockListener = new GlowstoneLanternsBlockListener(this);
+    private final BlockListener blockListener = new BlockListener(this);
 
     /**
      * The permissions manager used for Glowstone Lanterns.

@@ -1,7 +1,6 @@
 package com.timvisee.glowstonelanterns;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -63,8 +62,6 @@ public class GlowstoneLanterns extends JavaPlugin {
      */
     public final HashMap<Player, ArrayList<Block>> glUsers = new HashMap<>();
     public final HashMap<Player, String> glUsersPrebuiltLanterns = new HashMap<>();
-    // TODO: Remove this?
-    // public final HashMap<Player, Boolean> GLUsersCreatePrebuiltLanterns = new HashMap<>();
 
     /**
      * The list of glowstone lanterns.
@@ -486,9 +483,9 @@ public class GlowstoneLanterns extends JavaPlugin {
             if (isWorldLoaded(world.getName())) {
                 // Get current day state of the world
                 LanternState currentDayState;
-                if (isRaining(world))
+                if(world.hasStorm())
                     currentDayState = LanternState.RAIN;
-                else if (isDay(world))
+                else if(isDay(world))
                     currentDayState = LanternState.DAY;
                 else
                     currentDayState = LanternState.NIGHT;
@@ -747,7 +744,11 @@ public class GlowstoneLanterns extends JavaPlugin {
         return false;
     }
 
-    // Get the list of the lanterns
+    /**
+     * Get a list of available prebuilt lanterns.
+     *
+     * @return List of prebuilt lanterns. An empty list is returned if no prebuilt lanterns are found.
+     */
     public List<String> prebuiltLanternsList() {
         File folder = prebuiltLanternsFolder;
         File[] listOfFiles = folder.listFiles();
@@ -755,34 +756,28 @@ public class GlowstoneLanterns extends JavaPlugin {
 
         assert listOfFiles != null;
 
-        for (File listOfFile : listOfFiles) {
-            if (listOfFile.isFile()) {
-                if (listOfFile.getPath().endsWith(".gllantern")) {
-                    prebuiltLanternsList.add(listOfFile.getName());
-                }
-            }
-//			else if (listOfFile.isDirectory()) {
-//				// The item is a directory, do nothing
-//			} else {
-//				// File/directory is something else, do nothing
-//			}
-        }
+        for (File listOfFile : listOfFiles)
+            if(listOfFile.isFile() && listOfFile.getPath().endsWith(".gllantern"))
+                prebuiltLanternsList.add(listOfFile.getName());
 
         return prebuiltLanternsList;
     }
 
-    // Toggle the GL command (place mode command)
+    /**
+     * Toggle the place/build mode of glowstone lanterns for the specified player.
+     *
+     * @param player The player to toggle the mode for.
+     */
     public void toggleGL(Player player) {
         if (isGLEnabled(player)) {
             this.glUsers.remove(player);
-            player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.DARK_RED + "Disabled");
+            player.sendMessage(ChatColor.YELLOW + "[" + getPluginName() + "] Glowstone Lanterns " + ChatColor.DARK_RED + "Disabled");
         } else {
             if (canUseGL(player)) {
                 this.glUsers.put(player, null);
-                player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.GREEN + "Enabled");
-            } else {
-                player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
-            }
+                player.sendMessage(ChatColor.YELLOW + "[" + getPluginName() + "] Glowstone Lanterns " + ChatColor.GREEN + "Enabled");
+            } else
+                player.sendMessage(ChatColor.YELLOW + "[" + getPluginName() + "] " + ChatColor.DARK_RED + "You don't have permisson");
         }
     }
 
@@ -792,26 +787,44 @@ public class GlowstoneLanterns extends JavaPlugin {
             File lanternFile = new File(prebuiltLanternsFolder + "/" + lanternName + ".gllantern");
 
             if (lanternFile.exists()) {
-                if (glUsersPrebuiltLanterns.containsKey(player)) {
+                if (glUsersPrebuiltLanterns.containsKey(player))
                     glUsersPrebuiltLanterns.remove(player);
-                }
+
                 glUsersPrebuiltLanterns.put(player, lanternName);
                 player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Place prebuilt lantern " + ChatColor.WHITE + lanternName + " " + ChatColor.GREEN + "Enabled");
-            } else {
+            } else
                 player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "Unknown lantern, try " + ChatColor.WHITE + "/gl list lantern");
-            }
+
         } else {
-            if (glUsersPrebuiltLanterns.containsKey(player)) {
+            if(glUsersPrebuiltLanterns.containsKey(player))
                 glUsersPrebuiltLanterns.remove(player);
-            }
-            if (showMessage) {
+
+            if(showMessage)
                 player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Place prebuilt lanterns " + ChatColor.DARK_RED + "Disabled");
-            }
         }
     }
 
-    /*
-     * Check if a command is enabled
+    /**
+     * Check whether it's day or night time in the specified world.
+     *
+     * @param world The world.
+     *
+     * @return True if it's daytime, false if it's nighttime
+     */
+    public boolean isDay(World world) {
+        // Get the world time
+        long time = world.getTime();
+
+        // Return true if it's currently day time
+        return time < getConfig().getInt("NightStart", 12400) || time > getConfig().getInt("DayStart", 23700);
+    }
+
+    /**
+     * Check whether the build mode is enabled for the specified player.
+     *
+     * @param player The player to check for.
+     *
+     * @return True if the build mode is enable for this player. False if not.
      */
     public boolean isGLEnabled(Player player) {
         return this.glUsers.containsKey(player);
@@ -821,19 +834,8 @@ public class GlowstoneLanterns extends JavaPlugin {
         return this.glUsersPrebuiltLanterns.containsKey(player);
     }
 
-    // Check if it's day or night in a world
-    public boolean isDay(World world) {
-        long time = world.getTime();
-        return time < getConfig().getInt("NightStart", 12400) || time > getConfig().getInt("DayStart", 23700);
-    }
-
-    // Check if it's raining (storm) in a world
-    public boolean isRaining(World world) {
-        return world.hasStorm();
-    }
-
     /**
-     * Check whether a player can use Glowstone Lanterns
+     * Check whether a player can use glowstone lanterns
      *
      * @param p Player
      * @return True if the player has permission

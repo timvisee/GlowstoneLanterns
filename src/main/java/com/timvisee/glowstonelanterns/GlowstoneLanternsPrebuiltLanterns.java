@@ -170,7 +170,7 @@ public class GlowstoneLanternsPrebuiltLanterns {
 										stringToInt(lanternDataValues[4]), (byte) stringToInt(lanternDataValues[5]),
 										stringToInt(lanternDataValues[6]), (byte) stringToInt(lanternDataValues[7]));
 								
-								if(plugin.isRaining(world)) {
+								if(world.hasStorm()) {
 									newLantern.setState(plugin.getServer(), LanternState.RAIN);
 								} else if(plugin.isDay(world)) {
 									newLantern.setState(plugin.getServer(), LanternState.DAY);

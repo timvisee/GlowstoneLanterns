@@ -40,7 +40,7 @@ public class GlowstoneLanternsBlockListener implements Listener {
 								plugin.getConfig().getInt("lanternNightTypeID", 89), (byte) plugin.getConfig().getInt("lanternNightDataValue", 0),
 								plugin.getConfig().getInt("lanternRainTypeID", 89), (byte) plugin.getConfig().getInt("lanternRainDataValue", 0));
 						
-						if(plugin.isRaining(world)) {
+						if(world.hasStorm()) {
 							newLantern.setState(plugin.getServer(), LanternState.RAIN);
 						} else if(plugin.isDay(world)) {
 							newLantern.setState(plugin.getServer(), LanternState.DAY);

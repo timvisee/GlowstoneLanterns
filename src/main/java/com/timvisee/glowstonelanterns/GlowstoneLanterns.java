@@ -755,6 +755,8 @@ public class GlowstoneLanterns extends JavaPlugin {
                     sender.sendMessage(ChatColor.YELLOW + "This server is running Glowstone Lanterns v" + pdfFile.getVersion());
                     sender.sendMessage(ChatColor.YELLOW + "Glowstone Lanterns is made by Tim Visee - timvisee.com");
                     return true;
+                } else {
+                    sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "Unknown command! Use " + ChatColor.WHITE + "/gl help" + ChatColor.DARK_RED + " for help.");
                 }
             }
         }

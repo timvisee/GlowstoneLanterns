@@ -110,6 +110,18 @@ public class CommandManager {
                 glowstoneLanternsCommand);
         infoCommand.setCommandPermissions("glowstonelanterns.command.info", CommandPermissions.DefaultPermission.ALLOWED);
 
+        // Register the save command
+        CommandDescription saveCommand = new CommandDescription(
+                new SaveCommand(),
+                new ArrayList<String>() {{
+                    add("save");
+                    add("s");
+                }},
+                "Save Glowstone Lanterns",
+                "Save all loaded Glowstone Lanterns to a file.",
+                glowstoneLanternsCommand);
+        saveCommand.setCommandPermissions("glowstonelanterns.command.save", CommandPermissions.DefaultPermission.OP_ONLY);
+
         // Register the reload command
         CommandDescription reloadCommand = new CommandDescription(
                 new ReloadCommand(),

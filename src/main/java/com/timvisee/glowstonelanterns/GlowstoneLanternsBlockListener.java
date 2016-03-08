@@ -50,7 +50,7 @@ public class GlowstoneLanternsBlockListener implements Listener {
 						
 						player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.GREEN + "You placed a Glowstone Lantern");
 					} else {
-						String lanternName = plugin.GLUsersPrebuiltLanterns.get(player);
+						String lanternName = plugin.glUsersPrebuiltLanterns.get(player);
 						glowstoneLanternsPrebuiltLanterns.placePrebuiltLanternFromFile(lanternName, player, block, world);
 						player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.GREEN + "You placed a prebuilt Glowstone Lantern");
 					}

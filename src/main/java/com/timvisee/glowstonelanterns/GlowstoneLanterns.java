@@ -1,6 +1,7 @@
 package com.timvisee.glowstonelanterns;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -54,25 +55,25 @@ public class GlowstoneLanterns extends JavaPlugin {
     /**
      * The permissions manager used for Glowstone Lanterns.
      */
-    private GLPermissionsManager pm;
+    private GLPermissionsManager permissionsManager;
 
     /**
      * All user data.
      */
-    public final HashMap<Player, ArrayList<Block>> GLUsers = new HashMap<>();
-    public final HashMap<Player, String> GLUsersPrebuiltLanterns = new HashMap<>();
+    public final HashMap<Player, ArrayList<Block>> glUsers = new HashMap<>();
+    public final HashMap<Player, String> glUsersPrebuiltLanterns = new HashMap<>();
     // TODO: Remove this?
     // public final HashMap<Player, Boolean> GLUsersCreatePrebuiltLanterns = new HashMap<>();
 
     /**
      * The list of glowstone lanterns.
      */
-    public List<Lantern> GLLanterns = new ArrayList<>();
+    public List<Lantern> glLanterns = new ArrayList<>();
 
     /**
      * The list of lanterns to update.
      */
-    public List<LanternUpdate> lanternUpdates = new ArrayList<>();
+    public List<LanternUpdate> lanternsToUpdate = new ArrayList<>();
 
     /**
      * The lantern delay.
@@ -114,7 +115,7 @@ public class GlowstoneLanterns extends JavaPlugin {
             e.printStackTrace();
         }
 
-        // Setup costum files and folders
+        // Setup custom files and folders
         lanternsFile = new File(getDataFolder() + "/" + getConfig().getString("GlowstoneLanternsFile", "Glowstone Lanterns.txt"));
         prebuiltLanternsFolder = new File(getDataFolder() + "/" + getConfig().getString("PrebuiltLanternsFolder", "Prebuilt Lanterns"));
 
@@ -201,8 +202,8 @@ public class GlowstoneLanterns extends JavaPlugin {
      */
     public void setUpPermissionsManager() {
         // Setup the permissions manager
-        this.pm = new GLPermissionsManager(this.getServer(), this, this.getLogger());
-        this.pm.setup();
+        this.permissionsManager = new GLPermissionsManager(this.getServer(), this, this.getLogger());
+        this.permissionsManager.setup();
     }
 
     /**
@@ -211,9 +212,14 @@ public class GlowstoneLanterns extends JavaPlugin {
      * @return permissions manager
      */
     public GLPermissionsManager getPermissionsManager() {
-        return this.pm;
+        return this.permissionsManager;
     }
 
+    /**
+     * Check whether the configuration and data files exist. Create them if that isn't the case.
+     *
+     * @throws Exception
+     */
     public void checkConigFilesExist() throws Exception {
         if (!getDataFolder().exists()) {
             log.info("[Glowstone Lanterns] Creating default files");
@@ -306,6 +312,12 @@ public class GlowstoneLanterns extends JavaPlugin {
         }
     }
 
+    /**
+     * Copy an input stream to a target file. If the file doesn't exist, it will be created.
+     *
+     * @param in The input stream.
+     * @param file The target file.
+     */
     private void copy(InputStream in, File file) {
         try {
             OutputStream out = new FileOutputStream(file);
@@ -321,11 +333,22 @@ public class GlowstoneLanterns extends JavaPlugin {
         }
     }
 
+    /**
+     * Save all the loaded lanterns.
+     *
+     * @return True if succeed, false if failed.
+     */
     public boolean saveLanterns() {
         return saveLanterns(false);
     }
 
-    // Save the lanterns to the external file
+    /**
+     * Save the lanterns to the specified file.
+     *
+     * @param hideMessages True to hide the save message.
+     *
+     * @return True if succeed, false if failed.
+     */
     public boolean saveLanterns(boolean hideMessages) {
         // Save the lanterns list
         if (!hideMessages)
@@ -334,10 +357,10 @@ public class GlowstoneLanterns extends JavaPlugin {
         try {
             // Save and write the Lanterns to an external file
             BufferedWriter out = new BufferedWriter(new FileWriter(lanternsFile));
-            for (int i = 0; i < GLLanterns.size(); i++) {
+            for (int i = 0; i < glLanterns.size(); i++) {
                 if (i != 0)
                     out.newLine();
-                out.write(GLLanterns.get(i).getDataString());
+                out.write(glLanterns.get(i).getDataString());
             }
             out.close();
 
@@ -379,10 +402,10 @@ public class GlowstoneLanterns extends JavaPlugin {
                 dis = new DataInputStream(bis);
 
                 // Clean array/list first
-                GLLanterns.clear();
+                glLanterns.clear();
 
                 while (dis.available() != 0) {
-                    GLLanterns.add(new Lantern(dis.readLine()));
+                    glLanterns.add(new Lantern(dis.readLine()));
                 }
                 fis.close();
                 bis.close();
@@ -411,8 +434,13 @@ public class GlowstoneLanterns extends JavaPlugin {
         }
     }
 
+    /**
+     * Count the number of loaded lanterns.
+     *
+     * @return The number of loaded lanterns.
+     */
     public int countLanterns() {
-        return GLLanterns.size();
+        return glLanterns.size();
     }
 
     // TODO: Remove this method?
@@ -528,13 +556,13 @@ public class GlowstoneLanterns extends JavaPlugin {
                     lastDayState.remove(world);
                     lastDayState.put(world, currentDayState);
 
-                    if (GLLanterns.size() != 0) {
-                        for (Lantern l : GLLanterns) {
+                    if (glLanterns.size() != 0) {
+                        for (Lantern l : glLanterns) {
                             if (l.getWorld().equals(world.getName())) {
 
                                 if (this.lanternDelayEnabled) {
                                     LanternUpdate lu = new LanternUpdate(l, currentDayState);
-                                    lanternUpdates.add(lu);
+                                    lanternsToUpdate.add(lu);
                                 } else {
                                     l.setState(getServer(), currentDayState);
                                 }
@@ -549,9 +577,9 @@ public class GlowstoneLanterns extends JavaPlugin {
     }
 
     public void updateNextLantern() {
-        if (this.lanternUpdates.size() > 0) {
-            this.lanternUpdates.get(0).updateLantern(getServer());
-            this.lanternUpdates.remove(0);
+        if (this.lanternsToUpdate.size() > 0) {
+            this.lanternsToUpdate.get(0).updateLantern(getServer());
+            this.lanternsToUpdate.remove(0);
         }
     }
 
@@ -580,7 +608,7 @@ public class GlowstoneLanterns extends JavaPlugin {
                 lanternNightType, lanternNightData,
                 lanternRainType, lanternRainData);
 
-        GLLanterns.add(newLantern);
+        glLanterns.add(newLantern);
 
         saveLanterns(true);
 
@@ -589,7 +617,7 @@ public class GlowstoneLanterns extends JavaPlugin {
 
     // Check if a block is a lantern
     public boolean isLantern(World world, Block block) {
-        for (Lantern item : GLLanterns) {
+        for (Lantern item : glLanterns) {
             if (item.getWorld().equals(world.getName())) {
                 if (item.getBlock(getServer()).equals(block)) {
                     return true;
@@ -603,7 +631,7 @@ public class GlowstoneLanterns extends JavaPlugin {
     public void removeLanternFromList(World world, Block block) {
         List<Lantern> remove;
         remove = new ArrayList<>();
-        for (Lantern item : GLLanterns) {
+        for (Lantern item : glLanterns) {
             if (item.getWorld().equals(world.getName())) {
                 if (item.getBlock(getServer()).equals(block)) {
                     remove.add(item);
@@ -612,7 +640,7 @@ public class GlowstoneLanterns extends JavaPlugin {
         }
 
         for (Lantern item : remove) {
-            GLLanterns.remove(item);
+            glLanterns.remove(item);
         }
 
         saveLanterns(true);
@@ -782,11 +810,11 @@ public class GlowstoneLanterns extends JavaPlugin {
     // Toggle the GL command (place mode command)
     public void toggleGL(Player player) {
         if (isGLEnabled(player)) {
-            this.GLUsers.remove(player);
+            this.glUsers.remove(player);
             player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.DARK_RED + "Disabled");
         } else {
             if (canUseGL(player)) {
-                this.GLUsers.put(player, null);
+                this.glUsers.put(player, null);
                 player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Glowstone Lanterns " + ChatColor.GREEN + "Enabled");
             } else {
                 player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
@@ -800,17 +828,17 @@ public class GlowstoneLanterns extends JavaPlugin {
             File lanternFile = new File(prebuiltLanternsFolder + "/" + lanternName + ".gllantern");
 
             if (lanternFile.exists()) {
-                if (GLUsersPrebuiltLanterns.containsKey(player)) {
-                    GLUsersPrebuiltLanterns.remove(player);
+                if (glUsersPrebuiltLanterns.containsKey(player)) {
+                    glUsersPrebuiltLanterns.remove(player);
                 }
-                GLUsersPrebuiltLanterns.put(player, lanternName);
+                glUsersPrebuiltLanterns.put(player, lanternName);
                 player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Place prebuilt lantern " + ChatColor.WHITE + lanternName + " " + ChatColor.GREEN + "Enabled");
             } else {
                 player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "Unknown lantern, try " + ChatColor.WHITE + "/gl list lantern");
             }
         } else {
-            if (GLUsersPrebuiltLanterns.containsKey(player)) {
-                GLUsersPrebuiltLanterns.remove(player);
+            if (glUsersPrebuiltLanterns.containsKey(player)) {
+                glUsersPrebuiltLanterns.remove(player);
             }
             if (showMessage) {
                 player.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Place prebuilt lanterns " + ChatColor.DARK_RED + "Disabled");
@@ -822,11 +850,11 @@ public class GlowstoneLanterns extends JavaPlugin {
      * Check if a command is enabled
      */
     public boolean isGLEnabled(Player player) {
-        return this.GLUsers.containsKey(player);
+        return this.glUsers.containsKey(player);
     }
 
     public boolean isGLPrebuildEnabled(Player player) {
-        return this.GLUsersPrebuiltLanterns.containsKey(player);
+        return this.glUsersPrebuiltLanterns.containsKey(player);
     }
 
     // Check if it's day or night in a world

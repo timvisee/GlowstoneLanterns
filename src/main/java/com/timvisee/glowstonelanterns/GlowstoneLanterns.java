@@ -7,6 +7,9 @@ import java.util.logging.Logger;
 import java.io.*;
 import java.util.stream.Collectors;
 
+import com.timvisee.glowstonelanterns.lantern.Lantern;
+import com.timvisee.glowstonelanterns.lantern.LanternState;
+import com.timvisee.glowstonelanterns.lantern.LanternUpdate;
 import com.timvisee.glowstonelanterns.listener.BlockListener;
 import com.timvisee.glowstonelanterns.permission.PermissionsManager;
 import org.bukkit.World;

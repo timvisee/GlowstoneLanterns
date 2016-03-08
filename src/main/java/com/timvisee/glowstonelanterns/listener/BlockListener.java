@@ -4,8 +4,8 @@ import java.util.logging.Logger;
 
 import com.timvisee.glowstonelanterns.GlowstoneLanterns;
 import com.timvisee.glowstonelanterns.GlowstoneLanternsPrebuiltLanterns;
-import com.timvisee.glowstonelanterns.Lantern;
-import com.timvisee.glowstonelanterns.LanternState;
+import com.timvisee.glowstonelanterns.lantern.Lantern;
+import com.timvisee.glowstonelanterns.lantern.LanternState;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;

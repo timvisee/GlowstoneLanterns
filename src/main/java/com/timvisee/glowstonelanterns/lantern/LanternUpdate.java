@@ -1,4 +1,4 @@
-package com.timvisee.glowstonelanterns;
+package com.timvisee.glowstonelanterns.lantern;
 
 import org.bukkit.Server;
 

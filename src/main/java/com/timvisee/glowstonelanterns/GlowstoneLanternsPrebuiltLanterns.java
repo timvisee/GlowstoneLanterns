@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.timvisee.glowstonelanterns.lantern.Lantern;
+import com.timvisee.glowstonelanterns.lantern.LanternState;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;

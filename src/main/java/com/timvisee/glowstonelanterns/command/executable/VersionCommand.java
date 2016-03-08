@@ -26,7 +26,7 @@ public class VersionCommand extends ExecutableCommand {
         sender.sendMessage(ChatColor.GOLD + "Version: " + ChatColor.WHITE + GlowstoneLanterns.getPluginName() + " v" + GlowstoneLanterns.getVersionName() + ChatColor.GRAY + " (code: " + GlowstoneLanterns.getVersionCode() + ")");
         sender.sendMessage(ChatColor.GOLD + "Developers:");
         printDeveloper(sender, "Tim Visee", "timvisee", "Lead Developer");
-        sender.sendMessage(ChatColor.GOLD + "Website: " + ChatColor.WHITE + "http://timvisee.com/projects/bukkit/dungeon-maze/");
+        sender.sendMessage(ChatColor.GOLD + "Website: " + ChatColor.WHITE + "http://timvisee.com/projects/bukkit/glowstone-lanterns/");
         sender.sendMessage(ChatColor.GOLD + "License: " + ChatColor.WHITE + "GNU GPL v3.0" + ChatColor.GRAY + ChatColor.ITALIC + " (See LICENSE file)");
         sender.sendMessage(ChatColor.GOLD + "Copyright: " + ChatColor.WHITE + "Copyright (c) Tim Visee 2016. All rights reserved.");
         return true;

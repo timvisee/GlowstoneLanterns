@@ -240,79 +240,79 @@ public class GlowstoneLanterns extends JavaPlugin {
         f = new File(getDataFolder(), "config.yml");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/config.yml"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/config.yml"), f);
         }
 
         f = new File(getDataFolder(), "lanterns.list");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/lanterns.list"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/lanterns.list"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/1.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/1.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/1.gllantern"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/2.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/2.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/2.gllantern"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/3.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/3.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/3.gllantern"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/4.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/4.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/4.gllantern"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/5.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/5.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/5.gllantern"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/6.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/6.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/6.gllantern"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/7.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/7.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/7.gllantern"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/8.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/8.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/8.gllantern"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/ceiling.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/ceiling.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/ceiling.gllantern"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/fireplace.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/fireplace.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/fireplace.gllantern"), f);
         }
 
         f = new File(getDataFolder(), "Prebuilt Lanterns/pumpkin.gllantern");
         if (!f.exists()) {
             log.info("[Glowstone Lanterns] Generating new config file");
-            copy(getResource("res/defaultFiles/Glowstone Lanterns/Prebuilt Lanterns/pumpkin.gllantern"), f);
+            copy(getResource("res/defaultFiles/GlowstoneLanterns/Prebuilt Lanterns/pumpkin.gllantern"), f);
         }
     }
 

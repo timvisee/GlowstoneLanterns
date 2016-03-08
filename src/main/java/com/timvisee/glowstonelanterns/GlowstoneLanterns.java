@@ -225,6 +225,28 @@ public class GlowstoneLanterns extends JavaPlugin {
      * @throws Exception
      */
     public void checkConigFilesExist() throws Exception {
+        // Determine the legacy data directories for the plugin
+        List<File> legacyDataDirectories = new ArrayList<>();
+        legacyDataDirectories.add(new File(getDataFolder().getParentFile(), "Glowstone_Lanterns"));
+        legacyDataDirectories.add(new File(getDataFolder().getParentFile(), "Glowstone Lanterns"));
+
+        // Check whether the legacy directories exist
+        for(File legacyDir : legacyDataDirectories) {
+            // Continue if this directory doesn't exist
+            if(!legacyDir.exists())
+                continue;
+
+            // Check whether the current data directory exists
+            if(!getDataFolder().exists()) {
+                // Move the legacy directory to the new location
+                if(legacyDir.renameTo(getDataFolder()))
+                    log.info("[" + getPluginName() + "] Old GlowstoneLanterns data directory found. It has been moved to the new location.");
+                else
+                    log.info("[" + getPluginName() + "] Old GlowstoneLanterns data directory found. Failed to move it to the new location!");
+            } else
+                log.info("[" + getPluginName() + "] Old GlowstoneLanterns data directory found. Directory will not be moved because the new directory exists already.");
+        }
+
         if (!getDataFolder().exists()) {
             log.info("[Glowstone Lanterns] Creating default files");
             //noinspection ResultOfMethodCallIgnored

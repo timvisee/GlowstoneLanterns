@@ -205,9 +205,6 @@ public class GlowstoneLanterns extends JavaPlugin {
     public void setUpPermissionsManager() {
         // Construct the permissions manager
         this.permissionsManager = new PermissionsManager(this.getServer(), this, this.getLogger());
-
-        // Set up the permissions manager
-        this.permissionsManager.setup();
     }
 
     /**
@@ -240,11 +237,11 @@ public class GlowstoneLanterns extends JavaPlugin {
             if(!getDataFolder().exists()) {
                 // Move the legacy directory to the new location
                 if(legacyDir.renameTo(getDataFolder()))
-                    log.info("[" + getPluginName() + "] Old GlowstoneLanterns data directory found. It has been moved to the new location.");
+                    log.info("[" + getPluginName() + "] Old data directory moved to new location!");
                 else
-                    log.info("[" + getPluginName() + "] Old GlowstoneLanterns data directory found. Failed to move it to the new location!");
+                    log.info("[" + getPluginName() + "] Failed to move old data directory to new location!");
             } else
-                log.info("[" + getPluginName() + "] Old GlowstoneLanterns data directory found. Directory will not be moved because the new directory exists already.");
+                log.info("[" + getPluginName() + "] Old data directory found, but a new directory is available already.");
         }
 
         if (!getDataFolder().exists()) {

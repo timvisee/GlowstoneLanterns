@@ -71,6 +71,17 @@ public class CommandManager {
         lanternCommand.setCommandPermissions("glowstonelanterns.command.prebuilt", CommandPermissions.DefaultPermission.OP_ONLY);
         lanternCommand.addArgument(new CommandArgumentDescription("name", "The name of the prebuilt lantern to select.", true));
 
+        // Register the list prebuilt lanterns command
+        CommandDescription listCommand = new CommandDescription(
+                new ListCommand(),
+                new ArrayList<String>() {{
+                    add("list");
+                }},
+                "List all prebuilt lanterns",
+                "List the names of all loaded prebuilt lanterns.",
+                glowstoneLanternsCommand);
+        listCommand.setCommandPermissions("glowstonelanterns.command.list", CommandPermissions.DefaultPermission.OP_ONLY);
+
         // Register the help command
         CommandDescription helpCommand = new CommandDescription(
                 new HelpCommand(),

@@ -56,7 +56,8 @@
                 <filtering>true</filtering>
                 <directory>${basedir}/src/main/resources/</directory>
                 <includes>
-                    <include>*.yml</include>
+                    <include>plugin.yml</include>
+                    <include>res/</include>
                 </includes>
             </resource>
         </resources>

@@ -28,7 +28,7 @@ public class GlowstoneLanterns extends JavaPlugin {
     /**
      * The name of the plugin.
      */
-    private static final String PLUGIN_NAME = "GlowstoneLanterns";
+    private static final String PLUGIN_NAME = "Glowstone Lanterns";
 
     /**
      * The version name of the plugin.

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 import java.io.*;
+import java.util.stream.Collectors;
 
 import org.bukkit.World;
 import org.bukkit.ChatColor;
@@ -141,11 +142,10 @@ public class GlowstoneLanterns extends JavaPlugin {
         else
             log.info("[Glowstone Lanterns] The 'changeDelayTime' property in the config file has to be 1 or above");
 
-        if(this.lanternDelayEnabled) {
-            // Start the scheduled task to change delayed lanterns
-            // Run a timer to change delayed lanterns
+        // Start the scheduled task to change delayed lanterns
+        // Run a timer to change delayed lanterns
+        if(this.lanternDelayEnabled)
             getServer().getScheduler().scheduleSyncRepeatingTask(this, this::updateNextLantern, this.lanternDelayTime, this.lanternDelayTime);
-        }
 
         // The plugin has been enabled, show a status message
         log.info("[" + getPluginName() + "] " + getVersionComplete(true) + " started");
@@ -323,9 +323,8 @@ public class GlowstoneLanterns extends JavaPlugin {
             OutputStream out = new FileOutputStream(file);
             byte[] buf = new byte[1024];
             int len;
-            while ((len = in.read(buf)) > 0) {
+            while ((len = in.read(buf)) > 0)
                 out.write(buf, 0, len);
-            }
             out.close();
             in.close();
         } catch (Exception e) {
@@ -386,9 +385,8 @@ public class GlowstoneLanterns extends JavaPlugin {
         // Load all the lanterns. Check if file exists first
         if (lanternsFile.exists()) {
 
-            if (!hideMessages) {
+            if(!hideMessages)
                 log.info("[Glowstone Lanterns] Loading Glowstone Lanterns...");
-            }
 
             File file = lanternsFile;
             FileInputStream fis;
@@ -404,29 +402,31 @@ public class GlowstoneLanterns extends JavaPlugin {
                 // Clean array/list first
                 glLanterns.clear();
 
-                while (dis.available() != 0) {
+                while(dis.available() != 0)
                     glLanterns.add(new Lantern(dis.readLine()));
-                }
+
                 fis.close();
                 bis.close();
                 dis.close();
 
                 // Lanterns loaded, show message return true
-                if (!hideMessages) {
+                if(!hideMessages)
                     log.info("[Glowstone Lanterns] " + String.valueOf(countLanterns()) + " Glowstone Lanterns loaded!");
-                }
                 return true;
+
             } catch (FileNotFoundException e) {
                 // Something goes wrong with loading the lanterns, show an error message in the console and return false
                 e.printStackTrace();
                 log.info("[Glowstone Lanterns] Error by loading Glowstone Lanterns!");
                 return false;
+
             } catch (IOException e) {
                 // Something goes wrong with loading the lanterns, show an error message in the console and return false
                 e.printStackTrace();
                 log.info("[Glowstone Lanterns] Error by loading Glowstone Lanterns!");
                 return false;
             }
+
         } else {
             // The external lanterns file isn't found, show an message in the console and return false
             log.info("[Glowstone Lanterns] File 'Glowstone Lanterns/Glowstone Lanterns.txt' not found!");
@@ -443,50 +443,21 @@ public class GlowstoneLanterns extends JavaPlugin {
         return glLanterns.size();
     }
 
-    // TODO: Remove this method?
-    // Get config from custom path
-//    public FileConfiguration getConfigurationFromPath(String filePath, boolean insideDataFolder) {
-//        if (insideDataFolder) {
-//            File file = new File(getDataFolder(), filePath);
-//            return getConfigFromPath(file);
-//        } else {
-//            File file = new File(filePath);
-//            return getConfigFromPath(file);
-//        }
-//    }
-
-    // TODO: Remove this method?
-//    public FileConfiguration getConfigFromPath(File file) {
-//        FileConfiguration c;
-//
-//        if (file == null) {
-//            return null;
-//        }
-//
-//        c = YamlConfiguration.loadConfiguration(file);
-//
-//        return c;
-//    }
-
-    // TODO: Remove this method?
-//    public String booleanToString(boolean b) {
-//        return Boolean.toString(b);
-//    }
-
-    // Check if a world is loaded
+    /**
+     * Check whether a world is loaded.
+     *
+     * @param worldName The name of the world.
+     *
+     * @return True if the world is loaded, false if not.
+     */
     public boolean isWorldLoaded(String worldName) {
+        // TODO: Improve the efficiency of this code!
         List<World> worlds = new ArrayList<>();
         List<String> worldNames = new ArrayList<>();
 
         worlds.addAll(getServer().getWorlds());
-        for (World world : worlds) {
-            worldNames.add(world.getName());
-        }
-        if (worldNames.contains(worldName)) {
-            return true;
-        }
-        // No world loaded with this name, return false
-        return false;
+        worldNames.addAll(worlds.stream().map(World::getName).collect(Collectors.toList()));
+        return worldNames.contains(worldName);
     }
 
     // Get the facing direction from a player
@@ -498,17 +469,12 @@ public class GlowstoneLanterns extends JavaPlugin {
         return facing[(int) (yaw / 90)];
     }
 
-    // TODO: Remove this method?
-    // Get the facing direction from a player
-//    public int getFacingDirectionFromPlayerInt(Player player) {
-//        Location loc = player.getLocation();
-//        int facing[] = {0, 1, 2, 3};
-//        double yaw = ((loc.getYaw() + 22.5) % 360);
-//        if (yaw < 0) yaw += 360;
-//        return facing[(int) (yaw / 90)];
-//    }
-
-    // Get a list of all worlds
+    /**
+     * Get a list of all the worlds.
+     *
+     * @return List of all worlds.
+     */
+    // TODO: Show unloaded worlds too, or rename the method to make the returned value more clear?
     public List<World> getAllWorlds() {
         return getServer().getWorlds();
     }
@@ -516,58 +482,48 @@ public class GlowstoneLanterns extends JavaPlugin {
     public void timer() {
         // Check lanterns for every world
         for (World world : getAllWorlds()) {
-
             // Check if the current world is loaded
             if (isWorldLoaded(world.getName())) {
                 // Get current day state of the world
                 LanternState currentDayState;
-                if (isRaining(world)) {
+                if (isRaining(world))
                     currentDayState = LanternState.RAIN;
-                } else if (isDay(world)) {
+                else if (isDay(world))
                     currentDayState = LanternState.DAY;
-                } else {
+                else
                     currentDayState = LanternState.NIGHT;
-                }
+                
 
                 // World state not save yet, put unknown state in list
-                if (!lastDayState.containsKey(world)) {
+                if (!lastDayState.containsKey(world))
                     lastDayState.put(world, LanternState.UNKNOWN);
-                }
 
                 // Check if last state was different
                 if (lastDayState.get(world) != currentDayState) {
                     // Last day state was different
                     // Show console message if needed
                     if (currentDayState == LanternState.DAY) {
-                        if (getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
+                        if (getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true))
                             System.out.println("[Glowstone Lanterns] Day in '" + world.getName() + "', set lanterns");
-                        }
                     } else if (currentDayState == LanternState.NIGHT) {
-                        if (getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
+                        if(getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true))
                             System.out.println("[Glowstone Lanterns] Night in '" + world.getName() + "', set lanterns");
-                        }
-                    } else {
-                        if (getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true)) {
+                    } else if (getConfig().getBoolean("ShowTimeChangedMessagesInConsole", true))
                             System.out.println("[Glowstone Lanterns] Rain in '" + world.getName() + "', set lanterns");
-                        }
-                    }
 
                     // Update state in the list
                     lastDayState.remove(world);
                     lastDayState.put(world, currentDayState);
 
-                    if (glLanterns.size() != 0) {
-                        for (Lantern l : glLanterns) {
-                            if (l.getWorld().equals(world.getName())) {
+                    if(glLanterns.size() != 0) {
+                        glLanterns.stream().filter(l -> l.getWorld().equals(world.getName())).forEach(l -> {
 
-                                if (this.lanternDelayEnabled) {
-                                    LanternUpdate lu = new LanternUpdate(l, currentDayState);
-                                    lanternsToUpdate.add(lu);
-                                } else {
-                                    l.setState(getServer(), currentDayState);
-                                }
-                            }
-                        }
+                            if (this.lanternDelayEnabled) {
+                                LanternUpdate lu = new LanternUpdate(l, currentDayState);
+                                lanternsToUpdate.add(lu);
+                            } else
+                                l.setState(getServer(), currentDayState);
+                        });
                     }
 
                     saveLanterns(true);
@@ -576,6 +532,9 @@ public class GlowstoneLanterns extends JavaPlugin {
         }
     }
 
+    /**
+     * Update the next lantern that is in the update queue.
+     */
     public void updateNextLantern() {
         if (this.lanternsToUpdate.size() > 0) {
             this.lanternsToUpdate.get(0).updateLantern(getServer());
@@ -583,24 +542,25 @@ public class GlowstoneLanterns extends JavaPlugin {
         }
     }
 
-    // TODO: Remove this method?
-//    public boolean isInt(String string) {
-//        // Check if a string is an integer
-//        try {
-//            //noinspection ResultOfMethodCallIgnored
-//            Integer.parseInt(string);
-//        } catch (NumberFormatException ex) {
-//            return false;
-//        }
-//        return true;
-//    }
-
-    // Add new lantern to lantern list
+    /**
+     * Add a new lantern to the list of lanterns.
+     *
+     * @param world The world of the lantern.
+     * @param block The block of the lantern.
+     * @param lanternDayType The type of block of the lantern when it's daylight.
+     * @param lanternDayData The data type of the block of the lantern when it's daylight.
+     * @param lanternNightType The type of block of the lantern when it's night time.
+     * @param lanternNightData The data type of the block of the lantern when it's night time.
+     * @param lanternRainType The type of block of the lantern when it's raining.
+     * @param lanternRainData The data type of the block of the lantern when it's raining.
+     *
+     * @return The lantern that has been constructed and added.
+     */
     public Lantern addLanternToList(World world, Block block,
                                     int lanternDayType, byte lanternDayData,
                                     int lanternNightType, byte lanternNightData,
                                     int lanternRainType, byte lanternRainData) {
-
+        // Construct the new lantern to add
         Lantern newLantern = new Lantern(world.getName(),
                 block.getX(), block.getY(), block.getZ(),
                 LanternState.UNKNOWN,
@@ -608,10 +568,14 @@ public class GlowstoneLanterns extends JavaPlugin {
                 lanternNightType, lanternNightData,
                 lanternRainType, lanternRainData);
 
+        // Add the lantern to the list
         glLanterns.add(newLantern);
 
+        // Force-save the list of lanterns
+        // TODO: Should we do this?
         saveLanterns(true);
 
+        // Return the newly constructed lantern
         return newLantern;
     }
 

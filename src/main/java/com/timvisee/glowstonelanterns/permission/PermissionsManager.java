@@ -318,10 +318,7 @@ public class PermissionsManager {
         String pluginName = plugin.getName();
 
         // Check if any known permissions system is enabling
-        if(pluginName.equals("PermissionsEx") || pluginName.equals("PermissionsBukkit") ||
-                pluginName.equals("bPermissions") || pluginName.equals("GroupManager") ||
-                pluginName.equals("zPermissions") || pluginName.equals("Vault") ||
-                pluginName.equals("Permissions")) {
+        if(isSupportedPlugin(plugin)) {
             this.log.info(pluginName + " plugin enabled, dynamically updating permissions hooks!");
             setup();
         }
@@ -338,10 +335,7 @@ public class PermissionsManager {
         String pluginName = plugin.getName();
 
         // Is the WorldGuard plugin disabled
-        if(pluginName.equals("PermissionsEx") || pluginName.equals("PermissionsBukkit") ||
-                pluginName.equals("bPermissions") || pluginName.equals("GroupManager") ||
-                pluginName.equals("zPermissions") || pluginName.equals("Vault") ||
-                pluginName.equals("Permissions")) {
+        if(isSupportedPlugin(plugin)) {
             this.log.info(pluginName + " plugin disabled, updating hooks!");
             setup();
         }

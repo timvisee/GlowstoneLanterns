@@ -614,6 +614,16 @@ public class GlowstoneLanterns extends JavaPlugin {
         saveLanterns(true);
     }
 
+    /**
+     * Called when a command is executed.
+     *
+     * @param sender The command sender.
+     * @param cmd The command.
+     * @param commandLabel The command label.
+     * @param args The command arguments.
+     *
+     * @return True if the command was processed, false if not.
+     */
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 
         if (commandLabel.equalsIgnoreCase("glowstonelantern") || commandLabel.equalsIgnoreCase("glowstonelanterns") || commandLabel.equalsIgnoreCase("gl")) {
@@ -653,7 +663,7 @@ public class GlowstoneLanterns extends JavaPlugin {
                     }
 
                 } else if (args[0].equalsIgnoreCase("list")) {
-                    if (canUseGLList((Player) sender)) {
+                    if (canUseGLList(sender)) {
                         if (args.length == 2) {
                             if (args[1].equalsIgnoreCase("l") || args[1].equalsIgnoreCase("lantern") || args[1].equalsIgnoreCase("lanterns")) {
                                 List<String> prebuiltLanternsList = new ArrayList<>();
@@ -671,7 +681,7 @@ public class GlowstoneLanterns extends JavaPlugin {
                             }
                         }
                     } else {
-                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permission");
                         return true;
                     }
                 } else if (args[0].equalsIgnoreCase("info")) {
@@ -693,12 +703,12 @@ public class GlowstoneLanterns extends JavaPlugin {
                         }
                         return true;
                     } else {
-                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permission");
                         return true;
                     }
 
                 } else if (args[0].equalsIgnoreCase("save")) {
-                    if (canUseGLSave((Player) sender)) {
+                    if (canUseGLSave(sender)) {
 
                         sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] Saving lanterns...");
                         boolean result = saveLanterns();
@@ -709,12 +719,12 @@ public class GlowstoneLanterns extends JavaPlugin {
                         }
                         return true;
                     } else {
-                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permission");
                         return true;
                     }
 
                 } else if (args[0].equalsIgnoreCase("reload")) {
-                    if (canUseGLReload((Player) sender)) {
+                    if (canUseGLReload(sender)) {
                         boolean result = loadLanterns();
                         if (result) {
                             sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.GREEN + String.valueOf(countLanterns()) + " Lanterns succesfully reloaded!");
@@ -723,7 +733,7 @@ public class GlowstoneLanterns extends JavaPlugin {
                         }
                         return true;
                     } else {
-                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permisson");
+                        sender.sendMessage(ChatColor.YELLOW + "[Glowstone Lanterns] " + ChatColor.DARK_RED + "You don't have permission");
                         return true;
                     }
 
@@ -784,7 +794,7 @@ public class GlowstoneLanterns extends JavaPlugin {
                 this.glUsers.put(player, null);
                 player.sendMessage(ChatColor.YELLOW + "[" + getPluginName() + "] Glowstone Lanterns " + ChatColor.GREEN + "Enabled");
             } else
-                player.sendMessage(ChatColor.YELLOW + "[" + getPluginName() + "] " + ChatColor.DARK_RED + "You don't have permisson");
+                player.sendMessage(ChatColor.YELLOW + "[" + getPluginName() + "] " + ChatColor.DARK_RED + "You don't have permission");
         }
     }
 
@@ -882,6 +892,20 @@ public class GlowstoneLanterns extends JavaPlugin {
     }
 
     /**
+     * Check whether a player can use the list command
+     *
+     * @param sender Command sender
+     * @return True if the player has permission
+     */
+    public boolean canUseGLList(CommandSender sender) {
+        if(sender instanceof Player) {
+            Player p = (Player) sender;
+            return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.list", p.isOp());
+        }
+        return true;
+    }
+
+    /**
      * Check whether a player can use the save command
      *
      * @param p Player
@@ -892,6 +916,20 @@ public class GlowstoneLanterns extends JavaPlugin {
     }
 
     /**
+     * Check whether a player can use the save command
+     *
+     * @param sender Command sender
+     * @return True if the player has permission
+     */
+    public boolean canUseGLSave(CommandSender sender) {
+        if(sender instanceof Player) {
+            Player p = (Player) sender;
+            return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.save", p.isOp());
+        }
+        return true;
+    }
+
+    /**
      * Check whether a player can use the reload command
      *
      * @param p Player
@@ -899,5 +937,19 @@ public class GlowstoneLanterns extends JavaPlugin {
      */
     public boolean canUseGLReload(Player p) {
         return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.reload", p.isOp());
+    }
+
+    /**
+     * Check whether a player can use the reload command
+     *
+     * @param sender Command sender
+     * @return True if the player has permission
+     */
+    public boolean canUseGLReload(CommandSender sender) {
+        if(sender instanceof Player) {
+            Player p = (Player) sender;
+            return this.getPermissionsManager().hasPermission(p, "glowstonelanterns.reload", p.isOp());
+        }
+        return true;
     }
 }

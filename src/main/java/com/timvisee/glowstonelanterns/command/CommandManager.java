@@ -65,7 +65,7 @@ public class CommandManager {
                     add("select");
                     add("s");
                 }},
-                "(De)select prebuilt lantern",
+                "Select/deselect prebuilt lantern",
                 "Select a prebuilt lantern by the given name or deselect the prebuilt lantern if no name is given.",
                 glowstoneLanternsCommand);
         lanternCommand.setCommandPermissions("glowstonelanterns.command.prebuilt", CommandPermissions.DefaultPermission.OP_ONLY);

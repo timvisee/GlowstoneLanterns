@@ -37,7 +37,7 @@ public class SelectPrebuiltCommand extends ExecutableCommand {
             // Deselect the prebuilt lantern if no name is entered
             if(lanternName.trim().length() == 0) {
                 GlowstoneLanterns.instance.togglePlaceFinishedLanterns(player, "", true, true);
-                player.sendMessage(ChatColor.YELLOW + "Use " + ChatColor.WHITE + "/" + commandReference.toString() + ChatColor.GRAY + ChatColor.ITALIC + " <name>" + ChatColor.YELLOW + " to select a prebuilt lantern.");
+                player.sendMessage(ChatColor.YELLOW + "Use " + ChatColor.WHITE + "/" + commandReference.toString() + ChatColor.ITALIC + " <name>" + ChatColor.YELLOW + " to select a prebuilt lantern.");
                 player.sendMessage(ChatColor.YELLOW + "Use " + ChatColor.WHITE + "/" + commandReference.get(0) + " list" + ChatColor.YELLOW + " to list all prebuilt lanterns.");
                 return true;
             }
@@ -51,12 +51,14 @@ public class SelectPrebuiltCommand extends ExecutableCommand {
             GlowstoneLanterns.instance.togglePlaceFinishedLanterns(player, lanternName, false, true);
 
             // Show a status message
-            player.sendMessage(ChatColor.YELLOW + "Use " + ChatColor.WHITE + "/" + commandReference.toString() + ChatColor.YELLOW + " without a name to deselect.");
+            player.sendMessage(ChatColor.YELLOW + "Use " + ChatColor.WHITE + "/" + commandReference.toString() + ChatColor.YELLOW + " without a name to disable this mode.");
 
-        } else
+        } else {
             // Deselect the prebuilt lantern
-            player.sendMessage(ChatColor.YELLOW + "Use " + ChatColor.WHITE + "/" + commandReference.toString() + ChatColor.GRAY + ChatColor.ITALIC + " <name>" + ChatColor.YELLOW + " to select a prebuilt lantern.");
             GlowstoneLanterns.instance.togglePlaceFinishedLanterns(player, "", true, true);
+            player.sendMessage(ChatColor.YELLOW + "Use " + ChatColor.WHITE + "/" + commandReference.toString() + ChatColor.ITALIC + " <name>" + ChatColor.YELLOW + " to select a prebuilt lantern.");
+            player.sendMessage(ChatColor.YELLOW + "Use " + ChatColor.WHITE + "/" + commandReference.get(0) + " list" + ChatColor.YELLOW + " to list all prebuilt lanterns.");
+        }
 
         // Return the result
         return true;

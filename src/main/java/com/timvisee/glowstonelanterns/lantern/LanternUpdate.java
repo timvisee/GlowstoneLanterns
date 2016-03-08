@@ -7,7 +7,7 @@ public class LanternUpdate {
 	Lantern l;
 	LanternState newState = LanternState.UNKNOWN;
 	
-	LanternUpdate(Lantern l, LanternState newState) {
+	public LanternUpdate(Lantern l, LanternState newState) {
 		this.l = l;
 		this.newState = newState;
 	}

@@ -56,5 +56,5 @@ permissionsEnabled: true
 ShowTimeChangedMessagesInConsole: false
 
 # File version, do not change!
-version: '0.7'
-versionCode: 7
+version: '1.0'
+versionCode: 9

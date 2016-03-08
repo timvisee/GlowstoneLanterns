@@ -23,30 +23,62 @@ import com.timvisee.glowstonelanterns.manager.GLPermissionsManager;
 
 public class GlowstoneLanterns extends JavaPlugin {
 
-    // Glowstone Lanterns static instance
+    /**
+     * The name of the plugin.
+     */
+    private static final String PLUGIN_NAME = "Glowstone Lanterns";
+
+    /**
+     * The version name of the plugin.
+     */
+    private static final String PLUGIN_VERSION_NAME = "0.7";
+
+    /**
+     * The version code of the plugin.
+     */
+    private static final int PLUGIN_VERSION_CODE = 7;
+
+    /**
+     * The plugin instance.
+     */
     public static GlowstoneLanterns instance;
 
-    // Logger
+    /**
+     * The logger of the plugin.
+     */
     public static final Logger log = Logger.getLogger("Minecraft");
 
-    // Listeners
+    /**
+     * All plugin listeners.
+     */
     private final GlowstoneLanternsBlockListener blockListener = new GlowstoneLanternsBlockListener(this);
 
-    // Managers
+    /**
+     * The permissions manager used for Glowstone Lanterns.
+     */
     private GLPermissionsManager pm;
 
-    // User data
+    /**
+     * All user data.
+     */
     public final HashMap<Player, ArrayList<Block>> GLUsers = new HashMap<>();
     public final HashMap<Player, String> GLUsersPrebuiltLanterns = new HashMap<>();
-    public final HashMap<Player, Boolean> GLUsersCreatePrebuiltLanterns = new HashMap<>();
+    // TODO: Remove this?
+    // public final HashMap<Player, Boolean> GLUsersCreatePrebuiltLanterns = new HashMap<>();
 
-    // Lanterns
+    /**
+     * The list of glowstone lanterns.
+     */
     public List<Lantern> GLLanterns = new ArrayList<>();
 
-    // Lantern updates
+    /**
+     * The list of lanterns to update.
+     */
     public List<LanternUpdate> lanternUpdates = new ArrayList<>();
 
-    // Lantern delay settings
+    /**
+     * The lantern delay.
+     */
     boolean lanternDelayEnabled = true;
     int lanternDelayTime = 5;
 
@@ -56,22 +88,28 @@ public class GlowstoneLanterns extends JavaPlugin {
      * 2 = night
      * 3 = rain
      */
-    public HashMap<World, LanternState> lastDayState = new HashMap<World, LanternState>();
+    // TODO: Use an enum here?
+    public HashMap<World, LanternState> lastDayState = new HashMap<>();
 
-    // Setup some default file and folder paths, these will change to the config ones in the onEnable function
+    /**
+     * File paths for various configuration and data files.
+     */
     private File lanternsFile = new File("plugins/Glowstone Lanterns/Glowstone Lanterns.txt");
     public File prebuiltLanternsFolder = new File("Glowstone Lanterns/Prebuilt Lanterns");
 
     /**
-     * Constructor
+     * Constructor.
      */
     public GlowstoneLanterns() {
-        // Define the Glowstone Lanterns static instance variable
+        // Define the plugin instance
         instance = this;
     }
 
+    /**
+     * Called when the plugin is enabled.
+     */
     public void onEnable() {
-        // Check if all the config file exists
+        // Make sure the configuration file exists
         try {
             checkConigFilesExist();
         } catch (Exception e) {
@@ -88,7 +126,7 @@ public class GlowstoneLanterns extends JavaPlugin {
         // Load lanterns
         loadLanterns();
 
-        // Register events
+        // Get the plugin manager instances, to register event listeners
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(this.blockListener, this);
 
@@ -97,7 +135,8 @@ public class GlowstoneLanterns extends JavaPlugin {
             public void run() {
                 timer();
             }
-        }, 20, 20); // Run a timer that run's the timer() function every 1 seccond
+        }, 20, 20); // Run a timer that run's the timer() function every 1 second
+        // TODO: Make the above time configurable
 
         // Lantern delay settings
         this.lanternDelayEnabled = getConfig().getBoolean("changeDelayEnabled", true);
@@ -115,15 +154,54 @@ public class GlowstoneLanterns extends JavaPlugin {
             }, this.lanternDelayTime, this.lanternDelayTime); // Run a timer to change delayed lanaterns
         }
 
-        // Plugin enabled
-        PluginDescriptionFile pdfFile = getDescription();
-        log.info("[Glowstone Lanterns] Glowstone Lanterns v" + pdfFile.getVersion() + " Started");
+        // The plugin has been enabled, show a status message
+        log.info("[" + getPluginName() + "] " + getVersionComplete(true) + " started");
     }
 
+    /**
+     * Called when the plugin is disabled.
+     */
     public void onDisable() {
-        // Plugin disabled
-        PluginDescriptionFile pdfFile = getDescription();
-        log.info("[Glowstone Lanterns] Glowstone Lanterns v" + pdfFile.getVersion() + " Disabled");
+        log.info("[" + getPluginName() + "] " + getVersionComplete(true) + " disabled");
+    }
+
+    /**
+     * Get the name of the plugin.
+     *
+     * @return Plugin name.
+     */
+    public static String getPluginName() {
+        return PLUGIN_NAME;
+    }
+
+    /**
+     * Get the current installed Glowstone Lanterns version name.
+     *
+     * @return The version name of the currently installed Glowstone lanterns instance.
+     */
+    public static String getVersionName() {
+        return PLUGIN_VERSION_NAME;
+    }
+
+    /**
+     * Get the current installed Dungeon Maze version code.
+     *
+     * @return The version code of the currently installed Dungeon Maze instance.
+     */
+    public static int getVersionCode() {
+        return PLUGIN_VERSION_CODE;
+    }
+
+    /**
+     * Get the complete version identifier.
+     * The includes a prefixed 'v' sign, the version name and the version code between brackets.
+     *
+     * @param name True to include the plugin name in front.
+     *
+     * @return The complete version string.
+     */
+    public static String getVersionComplete(boolean name) {
+        return (name ? PLUGIN_NAME : "") + " v" + getVersionName() + " (" + getVersionCode() + ")";
     }
 
     /**

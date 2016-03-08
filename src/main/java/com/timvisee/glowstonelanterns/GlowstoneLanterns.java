@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import java.io.*;
 import java.util.stream.Collectors;
 
+import com.timvisee.glowstonelanterns.permission.PermissionsManager;
 import org.bukkit.World;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -55,7 +56,7 @@ public class GlowstoneLanterns extends JavaPlugin {
     /**
      * The permissions manager used for Glowstone Lanterns.
      */
-    private GLPermissionsManager permissionsManager;
+    private PermissionsManager permissionsManager;
 
     /**
      * All user data.
@@ -195,20 +196,22 @@ public class GlowstoneLanterns extends JavaPlugin {
     }
 
     /**
-     * Setup the permissions manager
+     * Set up the permissions manager.
      */
     public void setUpPermissionsManager() {
-        // Setup the permissions manager
-        this.permissionsManager = new GLPermissionsManager(this.getServer(), this, this.getLogger());
+        // Construct the permissions manager
+        this.permissionsManager = new PermissionsManager(this.getServer(), this, this.getLogger());
+
+        // Set up the permissions manager
         this.permissionsManager.setup();
     }
 
     /**
-     * Get the permissions manager
+     * Get the permissions manager instance.
      *
-     * @return permissions manager
+     * @return Permissions manager.
      */
-    public GLPermissionsManager getPermissionsManager() {
+    public PermissionsManager getPermissionsManager() {
         return this.permissionsManager;
     }
 

@@ -264,6 +264,50 @@ public class PermissionsManager {
     }
 
     /**
+     * Check whether a plugin is a permissions system plugin that is supported by the permissions manager.
+     *
+     * @param plugin The plugin to check.
+     *
+     * @return True if the plugin is a supported permissions system, false if not.
+     */
+    public boolean isSupportedPlugin(Plugin plugin) {
+        // Make sure the plugin isn't null
+        if(plugin == null)
+            return false;
+
+        // Check whether this plugin is supported by it's name
+        return isSupportedPlugin(plugin.getName());
+    }
+
+    /**
+     * Check whether a plugin is supported by the permissions manager by it's plugin name.
+     * The name of the plugin is case sensitive.
+     *
+     * @param pluginName The name of the plugin.
+     *
+     * @return True if the plugin is supported, false if not.
+     */
+    public boolean isSupportedPlugin(String pluginName) {
+        // Make sure the name isn't empty
+        if(pluginName.trim().length() == 0)
+            return false;
+
+        // Loop through the list with permissions systems
+        for(PermissionsSystemType type : PermissionsSystemType.values()) {
+            // Skip NONE
+            if(type == PermissionsSystemType.NONE)
+                continue;
+
+            // Compare the current permissions system type plugin name to the given plugin name
+            if(type.getPluginName().equals(pluginName))
+                return true;
+        }
+
+        // This doesn't seem to be a supported permissions system plugin, return false
+        return false;
+    }
+
+    /**
      * Method called when a plugin is being enabled.
      *
      * @param event Event instance.

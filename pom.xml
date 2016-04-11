@@ -7,10 +7,10 @@
     <artifactId>glowstonelanterns</artifactId>
 
     <!-- Plugin version name -->
-    <version>1.0</version>
+    <version>1.0.1</version>
 
     <name>GlowstoneLanterns</name>
-    <description>Make glowstone lant erns, daytime glass &amp; nighttime glowstone!</description>
+    <description>Make glowstone lanterns, daytime glass &amp; nighttime glowstone!</description>
     <inceptionYear>2012</inceptionYear>
     <url>http://dev.bukkit.org/bukkit-plugins/glowstone-lanterns/</url>
 
@@ -44,7 +44,7 @@
         <javaVersion>1.8</javaVersion>
 
         <!-- Minecraft Version -->
-        <bukkitVersion>1.9-R0.1-SNAPSHOT</bukkitVersion>
+        <bukkitVersion>1.9.2-R0.1-SNAPSHOT</bukkitVersion>
 
     </properties>
 

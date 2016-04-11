@@ -201,10 +201,10 @@
             <artifactId>bpermissions</artifactId>
             <version>1.12-DEV</version>
             <scope>system</scope>
-            <systemPath>${basedir}/libs/bPermissions-2.12-DEV.jar</systemPath>
+            <systemPath>${basedir}/libs/bPermissions-2.12-DEV-b18.jar</systemPath>
         </dependency>
 
-        <!-- PermissionsBukkit plugin -->
+        <!-- zPermissions plugin -->
         <dependency>
             <groupId>org.tyrannyofheaven.bukkit</groupId>
             <artifactId>zPermissions</artifactId>
